@@ -10,10 +10,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  createdAt DateTime @default(now())
+  id          String       @id @default(cuid())
+  name        String
+  email       String       @unique
+  createdAt   DateTime     @default(now())
+  
+  // 👇 Relación inversa: un usuario puede tener muchas comunidades
+  communities Community[]  @relation("UserCommunities")
 }
 
 model Community {
@@ -23,5 +26,6 @@ model Community {
   creatorId   String
   createdAt   DateTime @default(now())
 
-  creator     User     @relation(fields: [creatorId], references: [id])
+  // 👇 Relación directa: una comunidad tiene un creador (User)
+  creator     User     @relation("UserCommunities", fields: [creatorId], references: [id])
 }
