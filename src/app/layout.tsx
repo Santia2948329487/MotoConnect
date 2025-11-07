@@ -1,10 +1,16 @@
-import "./globals.css";
-import { ThemeProvider } from "next-themes";
-import Navbar from "@/components/Navbar";
+// src/app/layout.tsx
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
 
-export const metadata = {
-  title: "MotoConnect",
-  description: "Red social para moteros de todo el mundo",
+// 1. Importa el ClerkProvider
+import { ClerkProvider } from '@clerk/nextjs';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'MotoConnect',
+  description: 'La red social para moteros de todo el mundo.',
 };
 
 export default function RootLayout({
@@ -13,12 +19,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Navbar />
-          <main>{children}</main>
-        </ThemeProvider>
+    // <html> DEBE ser el elemento raíz
+    <html lang="es">
+      <body className={inter.className}>
+        {/* 2. El Provider DEBE ir DENTRO del body, envolviendo los children */}
+        <ClerkProvider>
+          {children}
+        </ClerkProvider>
       </body>
     </html>
   );
