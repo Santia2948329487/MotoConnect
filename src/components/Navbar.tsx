@@ -8,7 +8,10 @@ export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const id = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(id);
+  }, []);
   if (!mounted) return null;
 
   return (
