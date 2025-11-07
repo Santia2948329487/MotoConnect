@@ -13,19 +13,47 @@ model User {
   id          String       @id @default(cuid())
   name        String
   email       String       @unique
+  image       String?
   createdAt   DateTime     @default(now())
-  
-  // 👇 Relación inversa: un usuario puede tener muchas comunidades
+
   communities Community[]  @relation("UserCommunities")
+  posts       Post[]
+  comments    Comment[]
 }
 
 model Community {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
   description String?
+  image       String?
   creatorId   String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime    @default(now())
 
-  // 👇 Relación directa: una comunidad tiene un creador (User)
-  creator     User     @relation("UserCommunities", fields: [creatorId], references: [id])
+  creator     User        @relation("UserCommunities", fields: [creatorId], references: [id])
+  posts       Post[]
+}
+
+model Post {
+  id           String      @id @default(cuid())
+  title        String
+  content      String?
+  image        String?
+  communityId  String
+  authorId     String
+  createdAt    DateTime    @default(now())
+
+  community    Community   @relation(fields: [communityId], references: [id])
+  author       User        @relation(fields: [authorId], references: [id])
+  comments     Comment[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  content   String
+  postId    String
+  authorId  String
+  createdAt DateTime  @default(now())
+
+  post      Post      @relation(fields: [postId], references: [id])
+  author    User      @relation(fields: [authorId], references: [id])
 }
