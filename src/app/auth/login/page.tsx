@@ -1,15 +1,9 @@
-import { SignIn } from '@clerk/nextjs';
+import { SignIn } from "@clerk/nextjs";
 
-export default function LoginPage() {
-  // Clerk ya maneja la redirección post-login
+export default function Page() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-900">
-      <SignIn 
-        path="/login" 
-        routing="path" 
-        signUpUrl="/register"
-        forceRedirectUrl="/routes" // A dónde ir después del login
-      />
+    <div className="flex justify-center items-center h-screen">
+      <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
     </div>
   );
 }
