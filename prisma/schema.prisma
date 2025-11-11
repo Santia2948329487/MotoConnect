@@ -12,7 +12,7 @@ datasource db {
 model User {
   id        String   @id @default(cuid())
   clerkId   String   @unique // ID del usuario en Clerk
-  name      String
+  name      String?
   email     String   @unique
   createdAt DateTime @default(now())
 

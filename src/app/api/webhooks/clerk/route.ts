@@ -66,11 +66,21 @@ export async function POST(req: Request) {
       break;
 
     case "user.deleted":
-      await prisma.user.delete({
-        where: { clerkId: data.id },
-      });
-      break;
-
+  try {
+    await prisma.user.delete({
+      where: { clerkId: data.id },
+    });
+    console.log(`✅ Usuario eliminado: ${data.id}`);
+  } catch (error: any) {
+    // Si el usuario no existe, no hacer nada (es normal)
+    if (error.code === "P2025") {
+      console.warn(`⚠️ Usuario ya no existe: ${data.id}`);
+    } else {
+      throw error;
+    }
+  }
+  break;
+  
     default:
       console.log(`Evento no manejado: ${type}`);
   }
