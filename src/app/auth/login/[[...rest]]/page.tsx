@@ -43,20 +43,31 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    if (!isLoaded) return;
+ const handleGoogleSignIn = async () => {
+  if (!isLoaded) return;
 
-    try {
-      await signIn.authenticateWithRedirect({
+  try {
+    setLoading(true);
+    
+    // Timeout de 30 segundos
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout")), 30000)
+    );
+
+    await Promise.race([
+      signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/auth/callback",
         redirectUrlComplete: "/",
-      });
-    } catch (err: any) {
-      console.error("Error Google:", err);
-      setError("Error al iniciar sesión con Google");
-    }
-  };
+      }),
+      timeoutPromise,
+    ]);
+  } catch (err: any) {
+    console.error("Error Google:", err);
+    setError("Timeout. Verifica tu conexión e intenta de nuevo");
+    setLoading(false);
+  }
+};
 
   const handleGitHubSignIn = async () => {
     if (!isLoaded) return;
