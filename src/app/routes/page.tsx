@@ -6,6 +6,11 @@ import { Suspense } from 'react';
 import FilterButton from './FilterButton';
 import RetryButton from './RetryButton';
 
+// Asegurar que los estilos de Leaflet se carguen
+import 'leaflet/dist/leaflet.css';
+
+import 'leaflet/dist/leaflet.css';
+
 // Componente de carga
 function RoutesSkeleton() {
   return (

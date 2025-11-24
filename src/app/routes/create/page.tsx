@@ -3,16 +3,31 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Input from '@/components/ui/Input';
 import TextArea from '@/components/ui/TextArea';
 import { createRoute } from '@/services/routeService';
 import { Loader2 } from 'lucide-react';
+
+// Importar el mapa dinámicamente (solo en cliente)
+const InteractiveRouteMap = dynamic(
+  () => import('@/components/InteractiveRouteMap'),
+  { ssr: false }
+);
+
+interface Waypoint {
+  id: string;
+  lat: number;
+  lng: number;
+  name: string;
+}
 
 export default function CreateRoutePage() {
   const router = useRouter();
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -23,6 +38,16 @@ export default function CreateRoutePage() {
     mapUrl: '',
     image: '',
   });
+
+  const handleRouteChange = (newWaypoints: Waypoint[], distance: number) => {
+    setWaypoints(newWaypoints);
+    setFormData(prev => ({ 
+      ...prev, 
+      distanceKm: distance,
+      startPoint: newWaypoints[0]?.name || '',
+      endPoint: newWaypoints[newWaypoints.length - 1]?.name || ''
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,21 +150,16 @@ export default function CreateRoutePage() {
               </select>
             </div>
 
-            {/* Campo de Distancia */}
+            {/* Campo de Distancia (ahora readonly, calculado por el mapa) */}
             <Input 
               id="distanceKm" 
               label="Distancia (kilómetros)" 
               type="number" 
-              placeholder="Ej: 150" 
-              min="1"
-              step="0.1"
+              placeholder="Calculado automáticamente" 
               value={formData.distanceKm || ''}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                distanceKm: parseFloat(e.target.value) || 0 
-              })}
-              required
-              disabled={loading}
+              readOnly
+              disabled
+              className="bg-gray-700 cursor-not-allowed"
             />
 
             {/* Punto de Inicio */}
@@ -205,55 +225,28 @@ export default function CreateRoutePage() {
 
         {/* Columna 2: Mapa Interactivo */}
         <div className="bg-gray-800 p-4 rounded-lg shadow-xl flex flex-col">
-          <h2 className="text-xl font-semibold text-white mb-4">Vista Previa</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">Diseña tu Ruta en el Mapa</h2>
           
-          <div className="flex-grow h-96 md:h-full bg-gray-700 rounded-md flex flex-col items-center justify-center text-gray-400 p-6">
-            {formData.image ? (
-              <img 
-                src={formData.image} 
-                alt="Vista previa" 
-                className="max-w-full max-h-full object-contain rounded-md"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
-            ) : (
-              <>
-                <svg className="w-24 h-24 mb-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                </svg>
-                <p className="text-center">
-                  Agrega una URL de imagen para ver la vista previa
-                </p>
-              </>
-            )}
+          {/* Mapa Interactivo de Leaflet */}
+          <div className="flex-grow h-96 md:h-full rounded-md overflow-hidden">
+            <InteractiveRouteMap 
+              onRouteChange={handleRouteChange}
+              initialCenter={[6.2442, -75.5812]}
+              initialZoom={12}
+            />
           </div>
           
-          <div className="mt-4 space-y-2 text-sm">
-            <p className="text-gray-400">
-              📏 Distancia: <span className="font-semibold text-white">
-                {formData.distanceKm > 0 ? `${formData.distanceKm} km` : 'No especificada'}
+          <div className="mt-4 space-y-2 text-sm bg-gray-700/50 p-3 rounded-md">
+            <p className="text-gray-300">
+              📏 <strong>Distancia calculada:</strong>{' '}
+              <span className="text-green-400 font-bold">
+                {formData.distanceKm > 0 ? `${formData.distanceKm} km` : 'Añade puntos al mapa'}
               </span>
             </p>
-            <p className="text-gray-400">
-              🚧 Dificultad: <span className={`font-semibold ${
-                formData.difficulty === 'Fácil' ? 'text-green-400' :
-                formData.difficulty === 'Media' ? 'text-yellow-400' :
-                'text-red-400'
-              }`}>
-                {formData.difficulty}
-              </span>
+            <p className="text-gray-300">
+              📍 <strong>Puntos marcados:</strong>{' '}
+              <span className="text-blue-400 font-bold">{waypoints.length}</span>
             </p>
-            {formData.startPoint && (
-              <p className="text-gray-400">
-                📍 Inicio: <span className="font-semibold text-white">{formData.startPoint}</span>
-              </p>
-            )}
-            {formData.endPoint && (
-              <p className="text-gray-400">
-                🏁 Fin: <span className="font-semibold text-white">{formData.endPoint}</span>
-              </p>
-            )}
           </div>
         </div>
         
