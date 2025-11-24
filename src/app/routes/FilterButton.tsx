@@ -2,6 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { Filter } from 'lucide-react';
 
 interface FilterButtonProps {
   currentDifficulty?: string;
@@ -19,15 +20,18 @@ export default function FilterButton({ currentDifficulty }: FilterButtonProps) {
   };
 
   return (
-    <select
-      className="py-2 px-4 bg-gray-800 text-white rounded-md border border-gray-700 hover:border-blue-500 transition-colors"
-      value={currentDifficulty || ""}
-      onChange={(e) => handleChange(e.target.value)}
-    >
-      <option value="">Todas las dificultades</option>
-      <option value="Fácil">Fácil</option>
-      <option value="Media">Media</option>
-      <option value="Difícil">Difícil</option>
-    </select>
+    <div className="relative">
+      <select
+        className="appearance-none pl-10 pr-10 py-3 bg-neutral-900 text-white rounded-lg border-2 border-neutral-800 hover:border-red-600 focus:border-red-600 focus:outline-none transition-colors font-semibold cursor-pointer"
+        value={currentDifficulty || ""}
+        onChange={(e) => handleChange(e.target.value)}
+      >
+        <option value="">Todas las dificultades</option>
+        <option value="Fácil">🟢 Fácil</option>
+        <option value="Media">🟡 Media</option>
+        <option value="Difícil">🔴 Difícil</option>
+      </select>
+      <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 pointer-events-none" />
+    </div>
   );
 }
