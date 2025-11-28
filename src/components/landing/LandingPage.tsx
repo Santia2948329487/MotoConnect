@@ -215,7 +215,7 @@ export default function LandingPage() {
             <a href="/auth/register" className="px-8 py-4 bg-white text-red-600 hover:bg-neutral-100 rounded-lg font-bold text-lg transition-colors">
               Comenzar Gratis
             </a>
-            <a href="/routes" className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-bold text-lg transition-colors">
+            <a href="/auth/register" className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-bold text-lg transition-colors">
               Explorar Rutas
             </a>
           </div>
