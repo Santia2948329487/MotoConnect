@@ -2,8 +2,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { Menu, X, ChevronRight, MapPin, Users, Wrench, Check } from 'lucide-react';
+import { Menu, X, ChevronRight, MapPin, Users, Wrench, Check, MessageCircle, Route, UsersRound } from 'lucide-react';
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,29 +13,28 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-neutral-950/95 backdrop-blur-sm border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
                 </svg>
               </div>
               <span className="text-2xl font-bold">MotoConnect</span>
-            </Link>
+            </a>
 
             <div className="hidden md:flex items-center gap-8">
-              <a href="#home" className="text-neutral-300 hover:text-white transition-colors">Home</a>
               <a href="#features" className="text-neutral-300 hover:text-white transition-colors">Características</a>
-              <a href="#routes" className="text-neutral-300 hover:text-white transition-colors">Rutas</a>
-              <a href="#community" className="text-neutral-300 hover:text-white transition-colors">Comunidad</a>
+              <a href="/auth/register" className="text-neutral-300 hover:text-white transition-colors">Rutas</a>
+              <a href="/auth/register" className="text-neutral-300 hover:text-white transition-colors">Comunidad</a>
             </div>
 
             <div className="hidden md:flex items-center gap-4">
-              <Link href="/auth/login" className="px-6 py-2.5 text-neutral-300 hover:text-white transition-colors">
+              <a href="/auth/login" className="px-6 py-2.5 text-neutral-300 hover:text-white transition-colors">
                 Ingresar
-              </Link>
-              <Link href="/auth/register" className="px-6 py-2.5 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition-colors border-2 border-red-600">
-                Comenzar
-              </Link>
+              </a>
+              <a href="/auth/register" className="px-6 py-2.5 bg-red-600 hover:bg-red-700 rounded-md font-semibold transition-colors border-2 border-red-600">
+                Registrarse
+              </a>
             </div>
 
             <button
@@ -49,11 +47,12 @@ export default function LandingPage() {
 
           {isMenuOpen && (
             <div className="md:hidden py-4 space-y-3 border-t border-neutral-800">
-              <a href="#home" className="block px-4 py-2 hover:bg-neutral-800 rounded-lg">Home</a>
               <a href="#features" className="block px-4 py-2 hover:bg-neutral-800 rounded-lg">Características</a>
-              <Link href="/auth/register" className="block px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold text-center">
+              <a href="/auth/register" className="block px-4 py-2 hover:bg-neutral-800 rounded-lg">Rutas</a>
+              <a href="/auth/register" className="block px-4 py-2 hover:bg-neutral-800 rounded-lg">Comunidad</a>
+              <a href="/auth/register" className="block px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md font-semibold text-center">
                 Comenzar
-              </Link>
+              </a>
             </div>
           )}
         </div>
@@ -109,10 +108,10 @@ export default function LandingPage() {
                   Conecta con riders, descubre rutas épicas y encuentra los mejores talleres mecánicos.
                 </p>
 
-                <Link href="/auth/register" className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded flex items-center justify-center gap-2 transition-colors group">
+                <a href="/auth/register" className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded flex items-center justify-center gap-2 transition-colors group">
                   Explorar Más
                   <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -125,34 +124,56 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                icon: '🏍️',
-                title: 'MOTORCYCLE JUST FEELS RIGHT',
-                description: 'Descubre las mejores rutas moteras verificadas por la comunidad'
+                Icon: MessageCircle,
+                title: 'Interacción entre moteros',
+                items: [
+                  'Publicaciones con fotos y videos',
+                  'Comentarios y reacciones',
+                  'Perfiles con información de la moto y estilo de conducción'
+                ]
               },
               {
-                icon: '🎓',
-                title: 'OUR PURPOSE IS EDUCATION',
-                description: 'Aprende de riders experimentados y comparte tu conocimiento'
+                Icon: Route,
+                title: 'Rutas y eventos',
+                items: [
+                  'Visualización y registro de rutas en mapa',
+                  'Calendario de rodadas y eventos',
+                  'Inscripción y participación en actividades de la comunidad'
+                ]
               },
               {
-                icon: '❌',
-                title: 'GET THE MOTORCYCLE HABIT',
-                description: 'Únete a una comunidad global apasionada por las dos ruedas'
+                Icon: UsersRound,
+                title: 'Grupos y comunidad',
+                items: [
+                  'Grupos por ciudad, tipo de moto o interés',
+                  'Chats de grupo',
+                  'Espacios para compartir consejos, experiencias y recomendaciones'
+                ]
               }
-            ].map((feature, index) => (
+            ].map((feature, index) => {
+              const FeatureIcon = feature.Icon;
+              return (
               <div
                 key={index}
                 className="bg-neutral-900 border-2 border-red-900/50 rounded-lg p-8 hover:border-red-600 transition-colors"
               >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-sm font-bold tracking-wider mb-3 text-red-500 uppercase">
+                <div className="w-14 h-14 bg-red-600 rounded-lg flex items-center justify-center mb-4">
+                  <FeatureIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-white">
                   {feature.title}
                 </h3>
-                <p className="text-neutral-400 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
+                <ul className="space-y-2">
+                  {feature.items.map((item, itemIndex) => (
+                    <li key={itemIndex} className="flex items-start gap-2">
+                      <span className="text-red-500 mt-1">•</span>
+                      <span className="text-neutral-300 text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -191,12 +212,12 @@ export default function LandingPage() {
             Únete a miles de riders que ya están explorando nuevas rutas
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/auth/register" className="px-8 py-4 bg-white text-red-600 hover:bg-neutral-100 rounded-lg font-bold text-lg transition-colors">
+            <a href="/auth/register" className="px-8 py-4 bg-white text-red-600 hover:bg-neutral-100 rounded-lg font-bold text-lg transition-colors">
               Comenzar Gratis
-            </Link>
-            <Link href="/routes" className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-bold text-lg transition-colors">
+            </a>
+            <a href="/routes" className="px-8 py-4 bg-transparent border-2 border-white hover:bg-white/10 rounded-lg font-bold text-lg transition-colors">
               Explorar Rutas
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -204,7 +225,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="py-12 px-4 border-t border-neutral-800 bg-neutral-950">
         <div className="max-w-7xl mx-auto text-center text-neutral-400 text-sm">
-          <p>&copy; 2024 MotoConnect. Todos los derechos reservados.</p>
+          <p>&copy; 2025 MotoConnect. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
