@@ -1,11 +1,19 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useUser, useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Users, MapPin, Wrench, TrendingUp, ChevronRight, Calendar, Star } from "lucide-react";
+import { Users, MapPin, Wrench, TrendingUp, ChevronRight, Calendar, Star, LogOut } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
 
   const stats = [
     { 
@@ -72,14 +80,23 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-neutral-950 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-black text-white mb-2">
-            Bienvenido, {user?.firstName}! 🏍️
-          </h1>
-          <p className="text-neutral-400">
-            Conecta con moteros, comparte rutas y localiza talleres
-          </p>
+        {/* Header with Logout Button */}
+        <div className="mb-8 flex items-start justify-between">
+          <div>
+            <h1 className="text-4xl font-black text-white mb-2">
+              Bienvenido, {user?.firstName}! 🏍️
+            </h1>
+            <p className="text-neutral-400">
+              Conecta con moteros, comparte rutas y localiza talleres
+            </p>
+          </div>
+          <button
+            onClick={handleSignOut}
+            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-all hover:scale-105"
+          >
+            <LogOut className="w-4 h-4" />
+            Cerrar Sesión
+          </button>
         </div>
 
         {/* Stats Grid */}
