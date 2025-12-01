@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, ArrowLeft, Loader, CornerDownRight } from "lucide-react"; // Añadida CornerDownRight
+import { Mail, ArrowLeft, Loader, CornerDownRight } from "lucide-react";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -35,11 +35,21 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Efectos de fondo */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl"></div>
+      {/* Imagen de fondo con overlay */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070&auto=format&fit=crop"
+          alt="Motorcycle background"
+          className="w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/90 to-red-950/80"></div>
+      </div>
 
-      {/* Contenedor principal con grid para la nueva distribución (Igual que login/register) */}
+      {/* Efectos de fondo adicionales */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl z-0"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl z-0"></div>
+
+      {/* Contenedor principal con grid para la nueva distribución */}
       <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
 
         {/* Sección de Descripción a la Izquierda */}
@@ -60,41 +70,41 @@ export default function ForgotPasswordPage() {
 
           <ul className="space-y-3">
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Proceso de recuperación en dos pasos.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Proceso de recuperación en dos pasos.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Link de restablecimiento seguro por correo.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Link de restablecimiento seguro por correo.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Volverás a tu cuenta en minutos.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Volverás a tu cuenta en minutos.</span>
             </li>
           </ul>
         </div>
 
-        {/* Formulario de Recuperación a la Derecha (ancho reducido) */}
+        {/* Formulario de Recuperación a la Derecha */}
         <div className="w-full max-w-md mx-auto md:max-w-none">
           <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
             
-            {/* Encabezado del Formulario (Ajustado para vista de dos columnas) */}
+            {/* Encabezado del Formulario */}
             <div className="text-center mb-8">
-                {/* Logo solo en móvil */}
-                <div className="flex justify-center mb-4 md:hidden">
-                    <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
-                    </svg>
-                    </div>
+              {/* Logo solo en móvil */}
+              <div className="flex justify-center mb-4 md:hidden">
+                <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
+                  </svg>
                 </div>
+              </div>
 
-                <h1 className="text-3xl font-bold text-white mb-2">Recuperar Contraseña</h1>
-                <p className="text-neutral-400 text-sm">
+              <h1 className="text-3xl font-bold text-white mb-2">Recuperar Contraseña</h1>
+              <p className="text-neutral-400 text-sm">
                 {!success 
-                    ? "Ingresa tu email para recibir instrucciones"
-                    : "Revisa tu correo electrónico"}
-                </p>
+                  ? "Ingresa tu email para recibir instrucciones"
+                  : "Revisa tu correo electrónico"}
+              </p>
             </div>
 
             {!success ? (

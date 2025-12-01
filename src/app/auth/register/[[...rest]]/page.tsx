@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-// Se añade CornerDownRight para la descripción, como en el login
 import { Mail, Lock, Eye, EyeOff, Loader, User, CornerDownRight } from "lucide-react";
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -85,7 +84,6 @@ export default function RegisterPage() {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
-        // Cierra sesión y redirige a login
         await signOut(() => {
           router.push("/auth/login");
         });
@@ -100,7 +98,6 @@ export default function RegisterPage() {
     }
   };
 
-  // --- Vista de Verificación (sin cambios de diseño) ---
   if (pendingVerification) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
@@ -176,10 +173,19 @@ export default function RegisterPage() {
     );
   }
 
-  // --- Vista de Registro con diseño de dos columnas ---
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fondo y efectos de blur */}
+      {/* Imagen de fondo con overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1609630875171-b1321377ee65?q=80&w=2070&auto=format&fit=crop"
+          alt="Motorcycle background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/90 to-red-950/80"></div>
+      </div>
+
+      {/* Efectos de blur adicionales */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl"></div>
 
@@ -205,41 +211,41 @@ export default function RegisterPage() {
 
           <ul className="space-y-3">
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Planifica tus próximas aventuras.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Planifica tus próximas aventuras.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Comparte tus conocimientos y experiencias.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Comparte tus conocimientos y experiencias.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Únete a rodadas y eventos exclusivos.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Únete a rodadas y eventos exclusivos.</span>
             </li>
           </ul>
         </div>
 
-        {/* Formulario de Registro a la Derecha (ancho reducido) */}
+        {/* Formulario de Registro a la Derecha */}
         <div className="w-full max-w-md mx-auto md:max-w-none">
           <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
             
-            {/* Encabezado del Registro para móviles (visible en md:hidden) */}
+            {/* Encabezado del Registro para móviles */}
             <div className="text-center mb-8 md:hidden">
-                <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-4">
                 <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
-                    </svg>
+                  </svg>
                 </div>
-                </div>
-                <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
-                <p className="text-neutral-400 text-sm">Únete a la Comunidad Global de Moteros</p>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
+              <p className="text-neutral-400 text-sm">Únete a la Comunidad Global de Moteros</p>
             </div>
 
             <h2 className="text-2xl font-semibold text-white mb-6 text-center md:text-left">Crea tu Cuenta</h2>
 
             <form onSubmit={handleRegister} className="space-y-4">
-              {/* Controles de Nombre y Apellido (Se mantienen igual) */}
+              {/* Controles de Nombre y Apellido */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-neutral-300 mb-2">

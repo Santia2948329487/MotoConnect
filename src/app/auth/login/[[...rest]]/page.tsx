@@ -48,46 +48,33 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
+      setError("");
       
-      // Timeout AUMENTADO a 60 segundos (60000 ms)
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 60000)
-      );
-
-      await Promise.race([
-        signIn.authenticateWithRedirect({
-          strategy: "oauth_google",
-          redirectUrl: "/auth/callback",
-          redirectUrlComplete: "/",
-        }),
-        timeoutPromise,
-      ]);
-    } catch (err: any) {
-      console.error("Error Google:", err);
-      // Mensaje de error ajustado para reflejar el aumento del timeout
-      setError("Timeout. Verifica tu conexión e intenta de nuevo, o prueba un método diferente.");
-      setLoading(false);
-    }
-  };
-
-  const handleGitHubSignIn = async () => {
-    if (!isLoaded) return;
-
-    try {
       await signIn.authenticateWithRedirect({
-        strategy: "oauth_github",
+        strategy: "oauth_google",
         redirectUrl: "/auth/callback",
-        redirectUrlComplete: "/",
+        redirectUrlComplete: "/dashboard",
       });
     } catch (err: any) {
-      console.error("Error GitHub:", err);
-      setError("Error al iniciar sesión con GitHub");
+      console.error("Error Google:", err);
+      setError(err.errors?.[0]?.message || "Error al iniciar sesión con Google");
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Fondo y efectos de blur */}
+      {/* Imagen de fondo con overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1558981359-219d6364c9c8?q=80&w=2070&auto=format&fit=crop"
+          alt="Motorcycle background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/90 to-red-950/80"></div>
+      </div>
+
+      {/* Efectos de blur adicionales */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl"></div>
 
@@ -113,35 +100,35 @@ export default function LoginPage() {
 
           <ul className="space-y-3">
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Planifica tus próximas aventuras.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Planifica tus próximas aventuras.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Comparte tus conocimientos y experiencias.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Comparte tus conocimientos y experiencias.</span>
             </li>
             <li className="flex items-start text-neutral-400">
-                <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
-                <span>Únete a rodadas y eventos exclusivos.</span>
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Únete a rodadas y eventos exclusivos.</span>
             </li>
           </ul>
         </div>
 
-        {/* Formulario de Login a la Derecha (ancho reducido) */}
+        {/* Formulario de Login a la Derecha */}
         <div className="w-full max-w-md mx-auto md:max-w-none">
           <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
             
-            {/* Encabezado del Login para móviles (visible en md:hidden) */}
+            {/* Encabezado del Login para móviles */}
             <div className="text-center mb-8 md:hidden">
-                <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-4">
                 <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
-                    </svg>
+                  </svg>
                 </div>
-                </div>
-                <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
-                <p className="text-neutral-400 text-sm">Comunidad Global de Moteros</p>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
+              <p className="text-neutral-400 text-sm">Comunidad Global de Moteros</p>
             </div>
 
             <h2 className="text-2xl font-semibold text-white mb-6 text-center md:text-left">Inicia Sesión</h2>
@@ -242,17 +229,6 @@ export default function LoginPage() {
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
                 Google
-              </button>
-
-              <button
-                onClick={handleGitHubSignIn}
-                disabled={loading || !isLoaded}
-                className="w-full flex items-center justify-center gap-2 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/50 text-neutral-300 font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
-                GitHub
               </button>
             </div>
 

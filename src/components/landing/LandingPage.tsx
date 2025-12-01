@@ -58,10 +58,17 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with Motorcycle Background */}
       <section id="home" className="relative pt-32 pb-20 px-4 overflow-hidden">
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/95 to-transparent z-10"></div>
+        {/* Background Motorcycle Image */}
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?q=80&w=2070&auto=format&fit=crop" 
+            alt="Motorcycle background"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Dark overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/80 to-red-950/60"></div>
         </div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -91,7 +98,7 @@ export default function LandingPage() {
             </div>
 
             <div className="relative">
-              <div className="bg-neutral-900 border-2 border-red-600 rounded-xl p-8 shadow-2xl shadow-red-600/20">
+              <div className="bg-neutral-900/80 backdrop-blur-sm border-2 border-red-600 rounded-xl p-8 shadow-2xl shadow-red-600/20">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
                     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
