@@ -27,7 +27,9 @@ model User {
   workshops   Workshop[]
 
   routeReviews    RouteReview[]
+  routeComments   RouteComment[] // ✅ AGREGAR ESTA LÍNEA
   workshopReviews WorkshopReview[]
+
 }
 
 model Community {
@@ -67,6 +69,22 @@ model Comment {
   author User @relation(fields: [authorId], references: [id])
 }
 
+// ✅ AGREGAR ESTE NUEVO MODELO
+model RouteComment {
+  id        String   @id @default(cuid())
+  content   String
+  routeId   String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  route  Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  author User  @relation(fields: [authorId], references: [id])
+
+  @@index([routeId])
+  @@index([authorId])
+}
+
+
 model Route {
   id          String   @id @default(cuid())
   name        String
@@ -83,6 +101,7 @@ model Route {
   creator   User   @relation(fields: [creatorId], references: [id])
 
   reviews RouteReview[]
+  remarks RouteComment[]
 }
 
 model Workshop {

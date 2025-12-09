@@ -1,100 +1,154 @@
-// prisma/seed.js
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { PrismaClient, Role } from "@prisma/client";
+const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Iniciando seed...')
+  console.log("🌱 Starting seed...");
 
-  // Usuarios
-  const santiago = await prisma.user.create({
+  // --- USERS ---
+  const admin = await prisma.user.create({
     data: {
-      name: 'Santiago Castaño',
-      email: 'santiago@motoconnect.com',
-      image: 'https://randomuser.me/api/portraits/men/1.jpg',
+      clerkId: "clerk_admin_001",
+      name: "Admin User",
+      email: "admin@example.com",
+      role: Role.ADMIN,
     },
-  })
+  });
 
-  const emmanuel = await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
-      name: 'Emmanuel Torres',
-      email: 'emmanuel@motoconnect.com',
-      image: 'https://randomuser.me/api/portraits/men/2.jpg',
+      clerkId: "clerk_user_001",
+      name: "Juan Pérez",
+      email: "juan@example.com",
     },
-  })
+  });
 
-  const david = await prisma.user.create({
+  // --- COMMUNITY ---
+  const community = await prisma.community.create({
     data: {
-      name: 'David Gómez',
-      email: 'david@motoconnect.com',
-      image: 'https://randomuser.me/api/portraits/men/3.jpg',
+      name: "Moteros Medellín",
+      description: "Comunidad para amantes de las motos en Medellín",
+      image: "https://example.com/community.jpg",
+      creatorId: admin.id,
     },
-  })
+  });
 
-  // Comunidades
-  const comunidad1 = await prisma.community.create({
+  // --- POST ---
+  const post = await prisma.post.create({
     data: {
-      name: 'Riders Medellín',
-      description: 'Comunidad de moteros paisas que disfrutan las rutas de montaña 🏍️',
-      image: 'https://images.unsplash.com/photo-1504215680853-026ed2a45def',
-      creatorId: santiago.id,
+      title: "Nueva rodada este domingo",
+      content: "Nos reunimos en el Pueblito Paisa a las 10 am.",
+      image: "https://example.com/post.jpg",
+      communityId: community.id,
+      authorId: admin.id,
     },
-  })
+  });
 
-  const comunidad2 = await prisma.community.create({
-    data: {
-      name: 'Speed Lovers Bogotá',
-      description: 'Amantes de la velocidad y las buenas rodadas 🏁',
-      image: 'https://images.unsplash.com/photo-1516117172878-fd2c41f4a759',
-      creatorId: emmanuel.id,
-    },
-  })
-
-  // Posts
-  const post1 = await prisma.post.create({
-    data: {
-      title: 'Ruta a Guatapé este domingo',
-      content: 'Nos reunimos a las 8 a.m. en el Éxito de San Diego. ¡Lleven gasolina y buena energía!',
-      image: 'https://images.unsplash.com/photo-1535914254981-b5012eebbd15',
-      authorId: santiago.id,
-      communityId: comunidad1.id,
-    },
-  })
-
-  const post2 = await prisma.post.create({
-    data: {
-      title: 'Rodada nocturna por la 26',
-      content: 'Salida a las 9 p.m. desde el Parque Simón Bolívar. Casco reflectivo obligatorio.',
-      image: 'https://images.unsplash.com/photo-1504215680853-026ed2a45def',
-      authorId: emmanuel.id,
-      communityId: comunidad2.id,
-    },
-  })
-
-  // Comentarios
+  // --- COMMENT ---
   await prisma.comment.createMany({
     data: [
       {
-        content: '¡Allá estaré, hermano! 🔥',
-        postId: post1.id,
-        authorId: david.id,
+        content: "¡De una! Allá estaré 🔥",
+        postId: post.id,
+        authorId: user.id,
       },
       {
-        content: 'Buena esa, ¡no me lo pierdo!',
-        postId: post2.id,
-        authorId: santiago.id,
+        content: "Perfecto, llevo la GoPro 😎",
+        postId: post.id,
+        authorId: admin.id,
       },
     ],
-  })
+  });
 
-  console.log('✅ Seed completado exitosamente')
+  // --- ROUTE ---
+  const route = await prisma.route.create({
+    data: {
+      name: "Medellín → Guatapé",
+      description: "Ruta perfecta para disfrutar paisajes.",
+      difficulty: "media",
+      distanceKm: 82.5,
+      startPoint: "Medellín",
+      endPoint: "Guatapé",
+      image: "https://example.com/route.jpg",
+      mapUrl: "https://maps.google.com/...",
+      creatorId: admin.id,
+    },
+  });
+
+  // --- ROUTE REVIEWS ---
+  await prisma.routeReview.createMany({
+    data: [
+      {
+        rating: 5,
+        comment: "Una chimba de ruta!",
+        routeId: route.id,
+        userId: user.id,
+      },
+      {
+        rating: 4,
+        comment: "Muy buena pero tráfico pesado.",
+        routeId: route.id,
+        userId: admin.id,
+      },
+    ],
+  });
+
+  // --- ROUTE COMMENTS ---
+  await prisma.routeComment.createMany({
+    data: [
+      {
+        content: "¿A qué hora salen normalmente?",
+        routeId: route.id,
+        authorId: user.id,
+      },
+      {
+        content: "Generalmente 8am, parce.",
+        routeId: route.id,
+        authorId: admin.id,
+      },
+    ],
+  });
+
+  // --- WORKSHOP ---
+  const workshop = await prisma.workshop.create({
+    data: {
+      name: "Moto Taller El Rápido",
+      description: "Servicios de mecánica general",
+      address: "Cra 45 #30-21 Medellín",
+      phone: "3011234567",
+      services: "Mecánica, eléctricos, pintura",
+      image: "https://example.com/workshop.jpg",
+      latitude: 6.2442,
+      longitude: -75.5812,
+      creatorId: admin.id,
+    },
+  });
+
+  // --- WORKSHOP REVIEWS ---
+  await prisma.workshopReview.createMany({
+    data: [
+      {
+        rating: 5,
+        comment: "Excelente servicio, muy recomendado!",
+        workshopId: workshop.id,
+        userId: user.id,
+      },
+      {
+        rating: 4,
+        comment: "Buen trabajo pero se demoraron.",
+        workshopId: workshop.id,
+        userId: admin.id,
+      },
+    ],
+  });
+
+  console.log("🌱 Seed completed!");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

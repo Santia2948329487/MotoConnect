@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/services/routeService.ts
 import { Route } from '@/types/route';
 
@@ -83,6 +84,8 @@ export async function fetchAllRoutes(options?: {
   }
 }
 
+// src/services/routeService.ts
+
 // 2. Obtener una ruta específica por ID
 export async function fetchRouteById(id: string): Promise<Route | null> {
   try {
@@ -117,6 +120,8 @@ export async function fetchRouteById(id: string): Promise<Route | null> {
       views: 0,
       createdAt: route.createdAt,
       duration: calculateDuration(route.distanceKm),
+      // ✅ ASEGURAR QUE REVIEWS SEA SIEMPRE UN ARRAY
+      reviews: Array.isArray(route.reviews) ? route.reviews : [],
     };
     
   } catch (error) {

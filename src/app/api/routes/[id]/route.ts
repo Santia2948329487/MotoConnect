@@ -23,8 +23,9 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { id } = await params; // ← CORRECTO: await params
     const route = await prisma.route.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         creator: {
           select: {
