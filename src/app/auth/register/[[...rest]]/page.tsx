@@ -4,7 +4,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Lock, Eye, EyeOff, Loader, User } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Loader, User, CornerDownRight } from "lucide-react";
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useClerk } from "@clerk/nextjs";
@@ -87,7 +87,6 @@ export default function RegisterPage() {
       const result = await signUp.attemptEmailAddressVerification({ code });
 
       if (result.status === "complete") {
-        // Cierra sesión y redirige a login
         await signOut(() => {
           router.push("/auth/login");
         });
@@ -179,36 +178,126 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Imagen de fondo con overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1609630875171-b1321377ee65?q=80&w=2070&auto=format&fit=crop"
+          alt="Motorcycle background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/90 to-red-950/80"></div>
+      </div>
+
+      {/* Efectos de blur adicionales */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl"></div>
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
-                </svg>
-              </div>
+      {/* Contenedor principal con grid para la nueva distribución */}
+      <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
+        
+        {/* Sección de Descripción a la Izquierda */}
+        <div className="hidden md:block text-white pr-8">
+          <div className="flex items-center mb-6">
+            <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mr-4">
+              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
+              </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
-            <p className="text-neutral-400 text-sm">Únete a la Comunidad Global de Moteros</p>
+            <h1 className="text-4xl font-extrabold tracking-tight">MotoConnect</h1>
           </div>
+          
+          <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
+            Regístrate para ser parte de la **Comunidad Global de Moteros**. 
+            Accede a rutas exclusivas, foros de mecánica, eventos locales y conecta 
+            con miles de apasionados por la carretera.
+          </p>
 
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+          <ul className="space-y-3">
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Planifica tus próximas aventuras.</span>
+            </li>
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Comparte tus conocimientos y experiencias.</span>
+            </li>
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Únete a rodadas y eventos exclusivos.</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Formulario de Registro a la Derecha */}
+        <div className="w-full max-w-md mx-auto md:max-w-none">
+          <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+            
+            {/* Encabezado del Registro para móviles */}
+            <div className="text-center mb-8 md:hidden">
+              <div className="flex justify-center mb-4">
+                <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
+                  </svg>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
+              <p className="text-neutral-400 text-sm">Únete a la Comunidad Global de Moteros</p>
+            </div>
+
+            <h2 className="text-2xl font-semibold text-white mb-6 text-center md:text-left">Crea tu Cuenta</h2>
+
+            <form onSubmit={handleRegister} className="space-y-4">
+              {/* Controles de Nombre y Apellido */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                    Nombre
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                    <input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Juan"
+                      disabled={loading}
+                      className="w-full pl-10 pr-4 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                    Apellido
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                    <input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Pérez"
+                      disabled={loading}
+                      className="w-full pl-10 pr-4 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Control de Email */}
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">
-                  Nombre
+                  Correo Electrónico
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
                   <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Juan"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="tu@email.com"
                     disabled={loading}
                     className="w-full pl-10 pr-4 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
                     required
@@ -216,142 +305,109 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Control de Contraseña */}
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">
-                  Apellido
+                  Contraseña
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
                   <input
-                    type="text"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Pérez"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Mínimo 8 caracteres"
                     disabled={loading}
-                    className="w-full pl-10 pr-4 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                    className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                    required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Correo Electrónico
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@email.com"
-                  disabled={loading}
-                  className="w-full pl-10 pr-4 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
-                  required
-                />
+              {/* Control de Confirmar Contraseña */}
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Confirmar Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirma tu contraseña"
+                    disabled={loading}
+                    className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={loading}
+                    className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Mínimo 8 caracteres"
-                  disabled={loading}
-                  className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={loading}
-                  className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
+              <div id="clerk-captcha"></div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Confirmar Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirma tu contraseña"
-                  disabled={loading}
-                  className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={loading}
-                  className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div id="clerk-captcha"></div>
-
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading || !isLoaded}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition duration-300 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader className="w-4 h-4 animate-spin" />
-                  Registrando...
-                </>
-              ) : (
-                "Registrarse"
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
+                  {error}
+                </div>
               )}
-            </button>
-          </form>
 
-          <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-neutral-800"></div>
-            <span className="px-3 text-neutral-500 text-sm">O</span>
-            <div className="flex-1 h-px bg-neutral-800"></div>
+              <button
+                type="submit"
+                disabled={loading || !isLoaded}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition duration-300 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <Loader className="w-4 h-4 animate-spin" />
+                    Registrando...
+                  </>
+                ) : (
+                  "Registrarse"
+                )}
+              </button>
+            </form>
+
+            <div className="flex items-center my-6">
+              <div className="flex-1 h-px bg-neutral-800"></div>
+              <span className="px-3 text-neutral-500 text-sm">O</span>
+              <div className="flex-1 h-px bg-neutral-800"></div>
+            </div>
+
+            <p className="text-center text-neutral-400 text-sm">
+              ¿Ya tienes cuenta?{" "}
+              <a href="/auth/login" className="text-red-500 hover:text-red-400 font-semibold transition">
+                Inicia sesión aquí
+              </a>
+            </p>
           </div>
 
-          <p className="text-center text-neutral-400 text-sm">
-            ¿Ya tienes cuenta?{" "}
-            <a href="/auth/login" className="text-red-500 hover:text-red-400 font-semibold transition">
-              Inicia sesión aquí
-            </a>
-          </p>
-        </div>
-
-        <div className="text-center mt-6 text-xs text-neutral-500">
-          ✓ Conexión segura con encriptación SSL
+          <div className="text-center mt-6 text-xs text-neutral-500">
+            ✓ Conexión segura con encriptación SSL
+          </div>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 // Importar el mapa dinámicamente
 const WorkshopsMap = dynamic(
@@ -61,13 +62,24 @@ export default function WorkshopsPage() {
 
   return (
     <div className="p-4 bg-gray-900 min-h-screen">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-blue-400 mb-2">
-          Mapa de Talleres Moteros 🛠️
-        </h1>
-        <p className="text-gray-400 text-sm">
-          Encuentra talleres mecánicos cerca de ti
-        </p>
+      
+      {/* Header */}
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-blue-400 mb-2">
+            Mapa de Talleres Moteros 🛠️
+          </h1>
+          <p className="text-gray-400 text-sm">
+            Encuentra talleres mecánicos cerca de ti
+          </p>
+        </div>
+
+        {/* BOTÓN CREAR TALLER */}
+        <Link href="/workshops/new">
+          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+            + Crear Taller
+          </button>
+        </Link>
       </div>
 
       {loading && (
