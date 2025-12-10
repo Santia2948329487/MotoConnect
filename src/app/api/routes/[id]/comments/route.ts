@@ -15,26 +15,25 @@ const CommentSchema = z.object({
 // ============================
 export async function GET(
   _req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> } // <--- AQUÍ!
 ) {
   try {
-    const { id } = context.params; // <- CORRECTO
-    
+    const { id } = await context.params;  // <--- AQUÍ!!
+
     const comments = await prisma.routeComment.findMany({
       where: { routeId: id },
       include: {
         author: {
-          select: { id: true, name: true, email: true }
-        }
+          select: { id: true, name: true, email: true },
+        },
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({
       success: true,
-      data: comments
+      data: comments,
     });
-
   } catch (error) {
     console.error("Error fetching comments:", error);
     return NextResponse.json(
@@ -49,10 +48,10 @@ export async function GET(
 // ============================
 export async function POST(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> } // <--- AQUÍ!
 ) {
   try {
-    const { id } = context.params; // <-- CORRECTO
+    const { id } = await context.params; // <--- AQUÍ!!
 
     // Verificar usuario con Clerk
     const { userId } = await auth();
@@ -65,7 +64,7 @@ export async function POST(
 
     // Usuario en DB
     const user = await prisma.user.findUnique({
-      where: { clerkId: userId }
+      where: { clerkId: userId },
     });
 
     if (!user) {
@@ -77,7 +76,7 @@ export async function POST(
 
     // Verificar ruta
     const route = await prisma.route.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!route) {
@@ -96,24 +95,23 @@ export async function POST(
       data: {
         content: validated.content,
         routeId: id,
-        authorId: user.id
+        authorId: user.id,
       },
       include: {
         author: {
-          select: { id: true, name: true, email: true }
-        }
-      }
+          select: { id: true, name: true, email: true },
+        },
+      },
     });
 
     return NextResponse.json(
       {
         success: true,
         data: comment,
-        message: "Comentario publicado exitosamente"
+        message: "Comentario publicado exitosamente",
       },
       { status: 201 }
     );
-
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
