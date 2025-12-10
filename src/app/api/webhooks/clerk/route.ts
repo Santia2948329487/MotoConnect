@@ -48,8 +48,17 @@ export async function POST(req: Request) {
   const { type, data } = evt;
   console.log(`\n📨 Webhook recibido: ${type}`);
 
-  const email = data.email_addresses?.[0]?.email_address || null;
-  const name = `${data.first_name || ""} ${data.last_name || ""}`.trim();
+// Obtener email primario real
+const primaryEmailObj = data.email_addresses?.find(
+  (e: any) => e.id === data.primary_email_address_id
+);
+
+const email =
+  primaryEmailObj?.email_address ||
+  data.email_addresses?.[0]?.email_address ||
+  null;
+
+const name = `${data.first_name || ""} ${data.last_name || ""}`.trim();
 
   try {
     switch (type) {

@@ -23,44 +23,20 @@ export default function LoginPage() {
     setError("");
 
     try {
-      console.log("🔐 Intentando login con email/password...");
-      
       const result = await signIn.create({
         strategy: "password",
         identifier: email,
         password: password,
       });
 
-      console.log("📋 Result status:", result.status);
-
       if (result.status === "complete") {
-        console.log("✅ Login exitoso, activando sesión...");
         await setActive({ session: result.createdSessionId });
-        
-        console.log("🔄 Sincronizando usuario con DB...");
-        
-        // Sincronizar con la base de datos
-        try {
-          const syncResponse = await fetch("/api/sync-user", {
-            method: "POST",
-          });
-          
-          if (syncResponse.ok) {
-            const data = await syncResponse.json();
-            console.log("✅ Usuario sincronizado:", data);
-          }
-        } catch (syncError) {
-          console.warn("⚠️ Error sincronizando (continuando):", syncError);
-        }
-        
-        console.log("🚀 Redirigiendo al dashboard...");
-        router.push("/dashboard");
+        router.push("/");
       } else {
-        console.log("❌ Login incompleto:", result.status);
         setError("Verifica tus credenciales e intenta de nuevo");
       }
     } catch (err: any) {
-      console.error("❌ Error de login:", err);
+      console.error("Error de login:", err);
       setError(err.errors?.[0]?.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
@@ -72,60 +48,128 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
+      setError("");
       
-      // Timeout de 30 segundos
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 30000)
-      );
-
-      await Promise.race([
-        signIn.authenticateWithRedirect({
-          strategy: "oauth_google",
-          redirectUrl: "/auth/callback",
-          redirectUrlComplete: "/",
-        }),
-        timeoutPromise,
-      ]);
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/auth/callback",
+        redirectUrlComplete: "/dashboard",
+      });
     } catch (err: any) {
       console.error("Error Google:", err);
-      setError("Timeout. Verifica tu conexión e intenta de nuevo");
+      setError(err.errors?.[0]?.message || "Error al iniciar sesión con Google");
       setLoading(false);
     }
   };
 
-  const handleGitHubSignIn = async () => {
+  const handleMicrosoftSignIn = async () => {
     if (!isLoaded) return;
 
     try {
+      setLoading(true);
+      setError("");
+      
       await signIn.authenticateWithRedirect({
-        strategy: "oauth_github",
+        strategy: "oauth_microsoft",
         redirectUrl: "/auth/callback",
-        redirectUrlComplete: "/",
+        redirectUrlComplete: "/dashboard",
       });
     } catch (err: any) {
-      console.error("Error GitHub:", err);
-      setError("Error al iniciar sesión con GitHub");
+      console.error("Error Microsoft:", err);
+      setError(err.errors?.[0]?.message || "Error al iniciar sesión con Microsoft");
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    if (!isLoaded) return;
+
+    try {
+      setLoading(true);
+      setError("");
+      
+      await signIn.authenticateWithRedirect({
+        strategy: "oauth_facebook",
+        redirectUrl: "/auth/callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    } catch (err: any) {
+      console.error("Error Facebook:", err);
+      setError(err.errors?.[0]?.message || "Error al iniciar sesión con Facebook");
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Imagen de fondo con overlay */}
+      <div className="absolute inset-0">
+        <img 
+          src="https://images.unsplash.com/photo-1558981359-219d6364c9c8?q=80&w=2070&auto=format&fit=crop"
+          alt="Motorcycle background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/95 via-black/90 to-red-950/80"></div>
+      </div>
+
+      {/* Efectos de blur adicionales */}
       <div className="absolute top-0 left-0 w-96 h-96 bg-red-600/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-red-700/10 rounded-full blur-3xl"></div>
 
-      <div className="relative z-10 w-full max-w-md">
-        <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
-                </svg>
-              </div>
+      {/* Contenedor principal con grid para la nueva distribución */}
+      <div className="relative z-10 w-full max-w-5xl grid md:grid-cols-2 gap-12 items-center">
+        
+        {/* Sección de Descripción a la Izquierda */}
+        <div className="hidden md:block text-white pr-8">
+          <div className="flex items-center mb-6">
+            <div className="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center mr-4">
+              <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
+              </svg>
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
-            <p className="text-neutral-400 text-sm">Comunidad Global de Moteros</p>
+            <h1 className="text-4xl font-extrabold tracking-tight">MotoConnect</h1>
           </div>
+          
+          <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
+            Tu punto de encuentro digital con la **Comunidad Global de Moteros**. 
+            Accede a rutas exclusivas, foros de mecánica, eventos locales y conecta 
+            con miles de apasionados por la carretera.
+          </p>
+
+          <ul className="space-y-3">
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Planifica tus próximas aventuras.</span>
+            </li>
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Comparte tus conocimientos y experiencias.</span>
+            </li>
+            <li className="flex items-start text-neutral-400">
+              <CornerDownRight className="w-5 h-5 text-red-500 mr-3 mt-1 flex-shrink-0" />
+              <span>Únete a rodadas y eventos exclusivos.</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Formulario de Login a la Derecha */}
+        <div className="w-full max-w-md mx-auto md:max-w-none">
+          <div className="bg-neutral-900/50 backdrop-blur-xl border border-neutral-800 rounded-2xl p-8 shadow-2xl">
+            
+            {/* Encabezado del Login para móviles */}
+            <div className="text-center mb-8 md:hidden">
+              <div className="flex justify-center mb-4">
+                <div className="w-14 h-14 bg-red-600 rounded-xl flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L4 7v10l8 5 8-5V7l-8-5zm0 18.54l-6-3.75V8.46l6-3.75 6 3.75v8.33l-6 3.75z"/>
+                  </svg>
+                </div>
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2">MotoConnect</h1>
+              <p className="text-neutral-400 text-sm">Comunidad Global de Moteros</p>
+            </div>
+
+            <h2 className="text-2xl font-semibold text-white mb-6 text-center md:text-left">Inicia Sesión</h2>
 
             <form onSubmit={handleEmailSignIn} className="space-y-5">
               <div>
@@ -146,35 +190,35 @@ export default function LoginPage() {
                 </div>
               </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  disabled={loading}
-                  className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={loading}
-                  className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  Contraseña
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-neutral-500" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={loading}
+                    className="w-full pl-10 pr-12 py-2.5 bg-neutral-800/50 border border-neutral-700/50 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition disabled:opacity-50"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={loading}
+                    className="absolute right-3 top-3.5 text-neutral-500 hover:text-neutral-400 transition disabled:opacity-50"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
 
               {error && (
                 <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3 text-red-400 text-sm">
@@ -225,17 +269,28 @@ export default function LoginPage() {
                 Google
               </button>
 
-            <button
-              onClick={handleGitHubSignIn}
-              disabled={loading || !isLoaded}
-              className="w-full flex items-center justify-center gap-2 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/50 text-neutral-300 font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v 3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-              GitHub
-            </button>
-          </div>
+              <button
+                onClick={handleMicrosoftSignIn}
+                disabled={loading || !isLoaded}
+                className="w-full flex items-center justify-center gap-2 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/50 text-neutral-300 font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" fill="#00A4EF"/>
+                </svg>
+                Microsoft
+              </button>
+
+              <button
+                onClick={handleFacebookSignIn}
+                disabled={loading || !isLoaded}
+                className="w-full flex items-center justify-center gap-2 bg-neutral-800/50 hover:bg-neutral-800 border border-neutral-700/50 text-neutral-300 font-medium py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+                </svg>
+                Facebook
+              </button>
+            </div>
 
             <p className="text-center text-neutral-400 text-sm mt-6">
               ¿No tienes cuenta?{" "}

@@ -1,6 +1,6 @@
 // src/app/api/routes/[id]/comments/route.ts
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 
@@ -10,26 +10,24 @@ const CommentSchema = z.object({
   content: z.string().min(1).max(1000),
 });
 
-// GET /api/routes/[id]/comments - Obtener comentarios de una ruta
+// ============================
+// GET /api/routes/[id]/comments
+// ============================
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  _req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
+    const { id } = context.params; // <- CORRECTO
+    
     const comments = await prisma.routeComment.findMany({
-      where: { routeId: await params.id },
+      where: { routeId: id },
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
+          select: { id: true, name: true, email: true }
         }
       },
-      orderBy: {
-        createdAt: "desc"
-      }
+      orderBy: { createdAt: "desc" }
     });
 
     return NextResponse.json({
@@ -40,81 +38,69 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching comments:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Error al obtener los comentarios"
-      },
+      { success: false, error: "Error al obtener los comentarios" },
       { status: 500 }
     );
   }
 }
 
-// POST /api/routes/[id]/comments - Crear un comentario
+// ============================
+// POST /api/routes/[id]/comments
+// ============================
 export async function POST(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   try {
-    // Verificar autenticación
+    const { id } = context.params; // <-- CORRECTO
+
+    // Verificar usuario con Clerk
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "No autorizado. Debes iniciar sesión."
-        },
+        { success: false, error: "No autorizado. Debes iniciar sesión." },
         { status: 401 }
       );
     }
 
-    // Obtener el usuario de la BD
+    // Usuario en DB
     const user = await prisma.user.findUnique({
       where: { clerkId: userId }
     });
 
     if (!user) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Usuario no encontrado en la base de datos"
-        },
+        { success: false, error: "Usuario no encontrado en la base de datos" },
         { status: 404 }
       );
     }
 
-    // Verificar que la ruta existe
+    // Verificar ruta
     const route = await prisma.route.findUnique({
-      where: { id: params.id }
+      where: { id }
     });
 
     if (!route) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Ruta no encontrada"
-        },
+        { success: false, error: "Ruta no encontrada" },
         { status: 404 }
       );
     }
 
-    // Validar el body
+    // Validar body
     const body = await req.json();
     const validated = CommentSchema.parse(body);
 
-    // Crear el comentario
+    // Crear comentario
     const comment = await prisma.routeComment.create({
       data: {
         content: validated.content,
-        routeId: params.id,
+        routeId: id,
         authorId: user.id
       },
       include: {
         author: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
+          select: { id: true, name: true, email: true }
         }
       }
     });
@@ -131,21 +117,14 @@ export async function POST(
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Datos inválidos",
-          details: error.issues
-        },
+        { success: false, error: "Datos inválidos", details: error.issues },
         { status: 400 }
       );
     }
 
     console.error("Error creating comment:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Error al crear el comentario"
-      },
+      { success: false, error: "Error al crear el comentario" },
       { status: 500 }
     );
   }

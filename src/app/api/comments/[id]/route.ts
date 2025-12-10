@@ -1,6 +1,6 @@
 // src/app/api/comments/[id]/route.ts
 import { auth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 
@@ -10,193 +10,119 @@ const CommentUpdateSchema = z.object({
   content: z.string().min(1).max(500),
 });
 
-// PUT /api/comments/[id] - Actualizar un comentario
+
+// ✅ Next.js 16: params es una PROMESA
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   try {
-    // 1. Verificar autenticación
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "No autorizado"
-        },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "No autorizado" }, { status: 401 });
     }
 
-    // 2. Obtener usuario
     const user = await prisma.user.findUnique({
-      where: { clerkId: userId }
+      where: { clerkId: userId },
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Usuario no encontrado"
-        },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Usuario no encontrado" }, { status: 404 });
     }
 
-    // 3. Verificar que el comentario existe
     const existingComment = await prisma.comment.findUnique({
-      where: { id: params.id }
+      where: { id },
     });
 
     if (!existingComment) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Comentario no encontrado"
-        },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Comentario no encontrado" }, { status: 404 });
     }
 
-    // 4. Verificar permisos
     if (existingComment.authorId !== user.id && user.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "No tienes permisos para editar este comentario"
-        },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: "No tienes permisos" }, { status: 403 });
     }
 
-    // 5. Validar y actualizar
     const body = await req.json();
     const validated = CommentUpdateSchema.parse(body);
 
     const updatedComment = await prisma.comment.update({
-      where: { id: params.id },
+      where: { id },
       data: { content: validated.content },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
-      }
+      include: { author: true },
     });
 
     return NextResponse.json({
       success: true,
       data: updatedComment,
-      message: "Comentario actualizado exitosamente"
+      message: "Comentario actualizado exitosamente",
     });
 
   } catch (error: unknown) {
+    console.error("Error updating comment:", error);
+
     if (error instanceof z.ZodError) {
-      const errorDetails = error.issues.map((err: z.ZodIssue) => ({
-        field: err.path.join("."),
-        message: err.message
-      }));
-      
       return NextResponse.json(
-        {
-          success: false,
-          error: "Datos inválidos",
-          details: errorDetails
-        },
+        { success: false, error: "Datos inválidos", details: error.issues },
         { status: 400 }
       );
     }
 
-    console.error("Error updating comment:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Error al actualizar el comentario"
-      },
+      { success: false, error: "Error al actualizar el comentario" },
       { status: 500 }
     );
   }
 }
 
-// DELETE /api/comments/[id] - Eliminar un comentario
+
+// DELETE — también corregido
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params;
+
   try {
-    // 1. Verificar autenticación
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "No autorizado"
-        },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "No autorizado" }, { status: 401 });
     }
 
-    // 2. Obtener usuario
     const user = await prisma.user.findUnique({
-      where: { clerkId: userId }
+      where: { clerkId: userId },
     });
 
     if (!user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Usuario no encontrado"
-        },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Usuario no encontrado" }, { status: 404 });
     }
 
-    // 3. Verificar que el comentario existe
     const existingComment = await prisma.comment.findUnique({
-      where: { id: params.id }
+      where: { id },
     });
 
     if (!existingComment) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Comentario no encontrado"
-        },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Comentario no encontrado" }, { status: 404 });
     }
 
-    // 4. Verificar permisos
     if (existingComment.authorId !== user.id && user.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "No tienes permisos para eliminar este comentario"
-        },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: "No tienes permisos" }, { status: 403 });
     }
 
-    // 5. Eliminar
     await prisma.comment.delete({
-      where: { id: params.id }
+      where: { id },
     });
 
     return NextResponse.json({
       success: true,
-      message: "Comentario eliminado exitosamente"
+      message: "Comentario eliminado exitosamente",
     });
 
-  } catch (error: unknown) {
+  } catch (error) {
     console.error("Error deleting comment:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: "Error al eliminar el comentario"
-      },
+      { success: false, error: "Error al eliminar el comentario" },
       { status: 500 }
     );
   }
