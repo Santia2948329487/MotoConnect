@@ -2,7 +2,8 @@
 import CommunityCard from '@/components/cards/CommunityCard';
 import Link from 'next/link';
 import { mockCommunities } from '@/lib/mockData';
-import { Plus, Users } from 'lucide-react';
+// MODIFICADO: Añadir ArrowLeft a las importaciones de lucide-react
+import { Plus, Users, ArrowLeft } from 'lucide-react'; 
 
 export default function CommunitiesPage() {
   return (
@@ -10,12 +11,25 @@ export default function CommunitiesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-4xl font-black text-white mb-2">Comunidades Moteras 🏍️💬</h1>
-            <p className="text-neutral-400">
-              Conecta con riders de todo el mundo
-            </p>
+          
+          {/* INICIO: Contenedor para el botón de atrás y el título */}
+          <div className="flex items-center gap-6"> 
+            
+            {/* BOTÓN DE ATRÁS */}
+            <Link href="/dashboard">
+              <button className="p-2 bg-neutral-800 hover:bg-red-600 text-white rounded-lg transition-colors border border-neutral-700 hover:border-red-600">
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            </Link>
+            
+            <div>
+              <h1 className="text-4xl font-black text-white mb-2">Comunidades Moteras 🏍️💬</h1>
+              <p className="text-neutral-400">
+                Conecta con riders de todo el mundo
+              </p>
+            </div>
           </div>
+          {/* FIN: Contenedor para el botón de atrás y el título */}
           
           <Link 
             href="/communities/create" 

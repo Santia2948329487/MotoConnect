@@ -4,17 +4,10 @@ import RouteCard from '@/components/cards/RouteCard';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import FilterButton from './FilterButton';
-import { Plus, MapPin } from 'lucide-react';
+// MODIFICADO: Añadido ArrowLeft
+import { Plus, MapPin, ArrowLeft } from 'lucide-react'; 
 
 // Asegurar que los estilos de Leaflet se carguen
-import 'leaflet/dist/leaflet.css';
-
-import 'leaflet/dist/leaflet.css';
-
-
-// Asegurar que los estilos de Leaflet se carguen
-import 'leaflet/dist/leaflet.css';
-
 import 'leaflet/dist/leaflet.css';
 
 // Componente de carga
@@ -90,12 +83,25 @@ export default async function RoutesPage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div>
-            <h1 className="text-4xl font-black text-white mb-2">Rutas Compartidas 🌎</h1>
-            <p className="text-neutral-400">
-              Descubre y comparte las mejores rutas moteras
-            </p>
+          
+          {/* INICIO: Contenedor para el botón de atrás y el título */}
+          <div className="flex items-center gap-6"> 
+            
+            {/* BOTÓN DE ATRÁS */}
+            <Link href="/dashboard">
+              <button className="p-2 bg-neutral-800 hover:bg-red-600 text-white rounded-lg transition-colors border border-neutral-700 hover:border-red-600">
+                <ArrowLeft className="w-6 h-6" />
+              </button>
+            </Link>
+            
+            <div>
+              <h1 className="text-4xl font-black text-white mb-2">Rutas Compartidas 🌎</h1>
+              <p className="text-neutral-400">
+                Descubre y comparte las mejores rutas moteras
+              </p>
+            </div>
           </div>
+          {/* FIN: Contenedor para el botón de atrás y el título */}
           
           <div className="flex gap-3 items-center">
             <FilterButton currentDifficulty={params.difficulty} />

@@ -5,10 +5,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import Input from '@/components/ui/Input';
 import TextArea from '@/components/ui/TextArea';
 import { createRoute } from '@/services/routeService';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 
 // Importar el mapa dinámicamente (solo en cliente)
 const InteractiveRouteMap = dynamic(
@@ -88,26 +89,39 @@ export default function CreateRoutePage() {
   };
 
   return (
-    <div className="p-4 md:p-8 bg-gray-900 min-h-screen">
-      <h1 className="text-3xl font-bold text-blue-400 mb-6">
-        🏍️ Diseña Tu Nueva Ruta
-      </h1>
+    // Estilo del contenedor principal similar a LandingPage
+    <div className="p-4 md:p-10 bg-neutral-950 min-h-screen text-white">
+      
+      <div className="flex items-center gap-4 mb-6">
+        {/* BOTÓN DE ATRÁS */}
+        <Link href="/routes">
+          <button className="p-3 bg-neutral-800 hover:bg-red-600 text-white rounded-lg transition-colors border border-neutral-700 hover:border-red-600 flex-shrink-0">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+        </Link>
+        
+        {/* Título principal */}
+        <h1 className="text-3xl md:text-4xl font-bold text-white">
+          🏍️ Diseña Tu Nueva Ruta
+        </h1>
+      </div>
 
-      {/* Mensaje de error */}
+      {/* Mensaje de error (ajustado al tema) */}
       {error && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400">
+        <div className="mb-6 p-4 bg-red-900/40 border border-red-600 rounded-lg text-red-400">
           {error}
         </div>
       )}
 
       {/* Contenedor principal: Formulario + Mapa */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         
-        {/* Columna 1: Formulario de Datos */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-xl h-fit">
-          <h2 className="text-xl font-semibold text-white mb-4">Información de la Ruta</h2>
+        {/* Columna 1: Formulario de Datos (ocupa 2/5) */}
+        <div className="lg:col-span-2 bg-neutral-900 border border-neutral-800 p-6 rounded-xl shadow-2xl h-fit">
+          <h2 className="text-2xl font-semibold text-white mb-4 border-b border-neutral-800 pb-2">Información de la Ruta</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             
+            {/* Componente Input con estilos ajustados para el tema */}
             <Input 
               id="name" 
               label="Título de la Ruta" 
@@ -117,8 +131,11 @@ export default function CreateRoutePage() {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required 
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
+            {/* Componente TextArea con estilos ajustados para el tema */}
             <TextArea
               id="description"
               label="Descripción detallada"
@@ -127,16 +144,18 @@ export default function CreateRoutePage() {
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               required
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
             
-            {/* Campo Select para Dificultad */}
+            {/* Campo Select para Dificultad con estilos ajustados */}
             <div className="flex flex-col space-y-2 w-full">
-              <label htmlFor="difficulty" className="text-sm font-medium text-gray-400">
+              <label htmlFor="difficulty" className="text-sm font-medium text-neutral-300">
                 Dificultad
               </label>
               <select
                 id="difficulty"
-                className="flex h-10 w-full rounded-md border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-white disabled:opacity-50"
+                className="flex h-10 w-full rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm text-white disabled:opacity-50 focus:ring-red-600 focus:border-red-600 appearance-none cursor-pointer"
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ 
                   ...formData, 
@@ -151,7 +170,7 @@ export default function CreateRoutePage() {
               </select>
             </div>
 
-            {/* Campo de Distancia (ahora readonly, calculado por el mapa) */}
+            {/* Campo de Distancia (readonly) con estilos ajustados */}
             <Input 
               id="distanceKm" 
               label="Distancia (kilómetros)" 
@@ -160,10 +179,11 @@ export default function CreateRoutePage() {
               value={formData.distanceKm || ''}
               readOnly
               disabled
-              className="bg-gray-700 cursor-not-allowed"
+              className="bg-neutral-700 cursor-not-allowed border-neutral-700 placeholder:text-neutral-500 text-white"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
-            {/* Punto de Inicio */}
+            {/* Punto de Inicio con estilos ajustados */}
             <Input 
               id="startPoint" 
               label="Punto de Inicio (Opcional)" 
@@ -172,9 +192,11 @@ export default function CreateRoutePage() {
               value={formData.startPoint}
               onChange={(e) => setFormData({ ...formData, startPoint: e.target.value })}
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
-            {/* Punto Final */}
+            {/* Punto Final con estilos ajustados */}
             <Input 
               id="endPoint" 
               label="Punto Final (Opcional)" 
@@ -183,9 +205,11 @@ export default function CreateRoutePage() {
               value={formData.endPoint}
               onChange={(e) => setFormData({ ...formData, endPoint: e.target.value })}
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
-            {/* URL del Mapa */}
+            {/* URL del Mapa con estilos ajustados */}
             <Input 
               id="mapUrl" 
               label="Enlace de Google Maps (Opcional)" 
@@ -194,9 +218,11 @@ export default function CreateRoutePage() {
               value={formData.mapUrl}
               onChange={(e) => setFormData({ ...formData, mapUrl: e.target.value })}
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
-            {/* URL de Imagen */}
+            {/* URL de Imagen con estilos ajustados */}
             <Input 
               id="image" 
               label="URL de Imagen (Opcional)" 
@@ -205,12 +231,15 @@ export default function CreateRoutePage() {
               value={formData.image}
               onChange={(e) => setFormData({ ...formData, image: e.target.value })}
               disabled={loading}
+              className="bg-neutral-800 border-neutral-700 placeholder:text-neutral-500 text-white focus:ring-red-600 focus:border-red-600"
+              // labelClassName="text-neutral-300" // <--- ELIMINADO
             />
 
+            {/* Botón de Submit con estilo de CTA de LandingPage */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 text-lg font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 text-lg font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
@@ -224,12 +253,13 @@ export default function CreateRoutePage() {
           </form>
         </div>
 
-        {/* Columna 2: Mapa Interactivo */}
-        <div className="bg-gray-800 p-4 rounded-lg shadow-xl flex flex-col">
-          <h2 className="text-xl font-semibold text-white mb-4">Diseña tu Ruta en el Mapa</h2>
+        {/* Columna 2: Mapa Interactivo (ocupa 3/5) */}
+        <div className="lg:col-span-3 bg-neutral-900 border border-neutral-800 p-6 rounded-xl shadow-2xl flex flex-col">
+          <h2 className="text-2xl font-semibold text-white mb-4 border-b border-neutral-800 pb-2">Diseña tu Ruta en el Mapa</h2>
           
           {/* Mapa Interactivo de Leaflet */}
-          <div className="flex-grow h-96 md:h-full rounded-md overflow-hidden">
+          {/* Ajustado para ser más alto en pantallas medianas/grandes */}
+          <div className="flex-grow h-[500px] lg:h-[700px] rounded-md overflow-hidden border border-red-900/50">
             <InteractiveRouteMap 
               onRouteChange={handleRouteChange}
               initialCenter={[6.2442, -75.5812]}
@@ -237,16 +267,16 @@ export default function CreateRoutePage() {
             />
           </div>
           
-          <div className="mt-4 space-y-2 text-sm bg-gray-700/50 p-3 rounded-md">
-            <p className="text-gray-300">
+          <div className="mt-4 space-y-2 text-sm bg-neutral-800 p-4 rounded-md border border-neutral-700">
+            <p className="text-neutral-300">
               📏 <strong>Distancia calculada:</strong>{' '}
-              <span className="text-green-400 font-bold">
-                {formData.distanceKm > 0 ? `${formData.distanceKm} km` : 'Añade puntos al mapa'}
+              <span className="text-red-400 font-bold">
+                {formData.distanceKm > 0 ? `${formData.distanceKm.toFixed(2)} km` : 'Añade puntos al mapa'}
               </span>
             </p>
-            <p className="text-gray-300">
+            <p className="text-neutral-300">
               📍 <strong>Puntos marcados:</strong>{' '}
-              <span className="text-blue-400 font-bold">{waypoints.length}</span>
+              <span className="text-red-400 font-bold">{waypoints.length}</span>
             </p>
           </div>
         </div>
