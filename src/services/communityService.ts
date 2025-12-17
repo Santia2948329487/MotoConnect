@@ -104,3 +104,37 @@ export async function fetchCommunityById(
     return null;
   }
 }
+
+/* =========================================================
+   3️⃣ Obtener comunidades del usuario autenticado
+========================================================= */
+export async function fetchUserCommunities(): Promise<Community[]> {
+  try {
+    const res = await fetch(`${API_BASE}/communities/mine`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      next: { revalidate: 30 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error ${res.status}`);
+    }
+
+    const result: ApiResponse<any[]> = await res.json();
+    if (!result.success || !result.data) return [];
+
+    return result.data.map((community) => ({
+      id: community.id,
+      name: community.name,
+      description: community.description || "",
+      memberCount: community.memberCount ?? 0,
+      topic: community.topic || "General",
+      creatorName: community.creatorName || "Anónimo",
+      image: community.image || "",
+    }));
+  } catch (error) {
+    console.error("Error fetching user communities:", error);
+    return [];
+  }
+}

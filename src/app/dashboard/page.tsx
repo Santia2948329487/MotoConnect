@@ -3,7 +3,14 @@
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Users, MapPin, Wrench, TrendingUp, ChevronRight, Calendar, Star, LogOut, Award, Zap, Target } from "lucide-react";
+import { fetchUserCommunities } from "@/services/communityService";
+import { fetchDashboardSummary } from "@/services/dashboardService";
+import { fetchAllRoutes } from "@/services/routeService";
+import type { DashboardSummary } from "@/services/dashboardService";
+import type { Community } from "@/types/community";
+import type { Route as RouteType } from "@/types/route";
 
 export default function DashboardPage() {
   const { user } = useUser();
@@ -14,6 +21,58 @@ export default function DashboardPage() {
     await signOut();
     router.push("/");
   };
+
+  const [userCommunities, setUserCommunities] = useState<Community[]>([]);
+  const [userCommunitiesCount, setUserCommunitiesCount] = useState<number>(0);
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [featuredRoutes, setFeaturedRoutes] = useState<RouteType[]>([]);
+
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const data = await fetchUserCommunities();
+        if (!mounted) return;
+        setUserCommunities(data);
+        setUserCommunitiesCount(data.length);
+      } catch (err) {
+        console.error("Error loading user communities:", err);
+      }
+    }
+    load();
+    return () => { mounted = false };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadSummary() {
+      try {
+        const s = await fetchDashboardSummary();
+        if (!mounted) return;
+        setSummary(s);
+      } catch (err) {
+        console.error('Error loading dashboard summary:', err);
+      }
+    }
+    loadSummary();
+    return () => { mounted = false };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    async function loadFeatured() {
+      try {
+        const routes = await fetchAllRoutes({ limit: 3, offset: 0 });
+        if (!mounted) return;
+        setFeaturedRoutes(routes.slice(0, 3));
+      } catch (err) {
+        console.error('Error loading featured routes:', err);
+      }
+    }
+    loadFeatured();
+    return () => { mounted = false };
+  }, []);
 
   const stats = [
     { 
@@ -138,7 +197,15 @@ export default function DashboardPage() {
                     <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-red-600/20">
                       <Icon className="w-6 h-6 text-white" />
                     </div>
-                    <div className="text-4xl font-black text-white mb-1 group-hover:text-red-500 transition-colors">{stat.value}</div>
+                    <div className="text-4xl font-black text-white mb-1 group-hover:text-red-500 transition-colors">{(() => {
+                      if (!summary) return index === 0 ? userCommunitiesCount : stat.value;
+                      if (index === 0) return summary.totals.communities;
+                      if (index === 1) return summary.totals.routes;
+                      if (index === 2) return summary.totals.workshops;
+                      // activity - show recentActivity length
+                      if (index === 3) return summary.recentActivity.length;
+                      return stat.value;
+                    })()}</div>
                     <div className="text-neutral-400 text-sm font-medium">{stat.label}</div>
                   </div>
                   
@@ -201,22 +268,21 @@ export default function DashboardPage() {
                 <Calendar className="w-6 h-6 text-neutral-500" />
               </div>
 
-              {recentActivity.length > 0 ? (
+              {summary && summary.recentActivity.length > 0 ? (
                 <div className="space-y-4">
-                  {recentActivity.map((activity, index) => {
-                    const Icon = activity.icon;
+                  {summary.recentActivity.map((activity, index) => {
                     return (
                       <div
                         key={index}
                         className="group flex items-start gap-4 p-6 bg-neutral-950/50 border-2 border-neutral-800 hover:border-red-600 rounded-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                       >
                         <div className="w-14 h-14 bg-gradient-to-br from-red-600 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-600/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                          <Icon className="w-7 h-7 text-white" />
+                          <TrendingUp className="w-7 h-7 text-white" />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-bold text-white mb-1 text-lg group-hover:text-red-500 transition-colors">{activity.title}</h3>
                           <p className="text-neutral-300 mb-2">{activity.description}</p>
-                          <p className="text-sm text-neutral-500">{activity.time}</p>
+                          <p className="text-sm text-neutral-500">{new Date(activity.createdAt).toLocaleString()}</p>
                         </div>
                         <ChevronRight className="w-5 h-5 text-neutral-700 group-hover:text-red-500 group-hover:translate-x-1 transition-all opacity-0 group-hover:opacity-100" />
                       </div>
@@ -265,10 +331,10 @@ export default function DashboardPage() {
                 <div className="space-y-4 pt-6 border-t border-neutral-800">
                   <div className="flex items-center justify-between p-3 bg-neutral-950/50 rounded-lg">
                     <span className="text-neutral-400 text-sm">Puntos XP</span>
-                    <span className="text-white font-bold">0 / 100</span>
+                    <span className="text-white font-bold">{summary ? summary.xp : 0}</span>
                   </div>
                   <div className="w-full bg-neutral-800 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-red-600 to-orange-600 h-2 rounded-full" style={{width: '0%'}}></div>
+                    <div className="bg-gradient-to-r from-red-600 to-orange-600 h-2 rounded-full" style={{width: `${summary ? Math.min(100, Math.floor((summary.xp / (summary.levels?.[summary.level+1] || 100)) * 100)) : 0}%`}}></div>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-neutral-950/50 rounded-lg">
                     <span className="text-neutral-400 text-sm">Miembro desde</span>
@@ -308,38 +374,55 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+              {/* Comunidades -> mostrar las que el usuario sigue */}
+                <div className="mt-6 pt-6 border-t border-neutral-800">
+                  <h4 className="text-sm font-bold text-white mb-3">Comunidades que sigues</h4>
+                  {summary && summary.recentActivity.length > 0 ? (
+                    <div className="space-y-2">
+                      {userCommunities.map((c) => (
+                        <Link key={c.id} href={`/communities/${c.id}`} className="block p-2 bg-neutral-950/50 rounded-md hover:bg-neutral-900">
+                          <div className="text-sm font-semibold text-white">{c.name}</div>
+                          <div className="text-xs text-neutral-400">{c.creatorName}</div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-neutral-500 text-sm">Aún no te has unido a comunidades</div>
+                  )}
+                </div>
 
-            {/* Featured Routes with Enhanced Design */}
+              {/* Featured Routes with Enhanced Design */}
             <div className="bg-neutral-900 border-2 border-neutral-800 rounded-xl p-8 shadow-2xl shadow-black/20">
               <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                 <div className="w-2 h-6 bg-red-600 rounded-full"></div>
+      
                 Rutas Destacadas
               </h3>
               <div className="space-y-3">
-                {[
-                  { name: 'Ruta del Café', rating: 4.8, distance: '134 km', difficulty: 'Media' },
-                  { name: 'Laguna Guatavita', rating: 4.6, distance: '75 km', difficulty: 'Fácil' },
-                  { name: 'Oriente Antioqueño', rating: 4.9, distance: '156 km', difficulty: 'Difícil' },
-                ].map((route, index) => (
-                  <div key={index} className="group flex items-center justify-between p-4 bg-neutral-950/50 border-2 border-neutral-800 hover:border-red-600 rounded-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
-                    <div className="flex-1">
-                      <p className="font-bold text-white mb-2 group-hover:text-red-500 transition-colors">{route.name}</p>
-                      <div className="flex items-center gap-3 flex-wrap">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
-                          <span className="text-sm font-semibold text-neutral-300">{route.rating}</span>
+                {featuredRoutes.length > 0 ? (
+                  featuredRoutes.map((route, index) => (
+                    <div key={route.id} className="group flex items-center justify-between p-4 bg-neutral-950/50 border-2 border-neutral-800 hover:border-red-600 rounded-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+                      <div className="flex-1">
+                        <p className="font-bold text-white mb-2 group-hover:text-red-500 transition-colors">{route.title}</p>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <div className="flex items-center gap-1">
+                            <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                            <span className="text-sm font-semibold text-neutral-300">{(route.reviews && route.reviews.length > 0) ? Math.round((route.reviews.reduce((a,b)=>a+(b.rating||0),0)/route.reviews.length)*10)/10 : '—'}</span>
+                          </div>
+                          <span className="text-neutral-600">•</span>
+                          <span className="text-sm text-neutral-400 font-medium">{route.distanceKm ? `${route.distanceKm} km` : '-'}</span>
+                          <span className="text-neutral-600">•</span>
+                          <span className="text-xs px-2 py-1 bg-neutral-800 text-neutral-400 rounded-full font-medium">
+                            {route.difficulty}
+                          </span>
                         </div>
-                        <span className="text-neutral-600">•</span>
-                        <span className="text-sm text-neutral-400 font-medium">{route.distance}</span>
-                        <span className="text-neutral-600">•</span>
-                        <span className="text-xs px-2 py-1 bg-neutral-800 text-neutral-400 rounded-full font-medium">
-                          {route.difficulty}
-                        </span>
                       </div>
+                      <ChevronRight className="w-5 h-5 text-neutral-700 group-hover:text-red-500 group-hover:translate-x-1 transition-all" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-neutral-700 group-hover:text-red-500 group-hover:translate-x-1 transition-all" />
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-neutral-400">Cargando rutas destacadas...</div>
+                )}
               </div>
               
               <Link 

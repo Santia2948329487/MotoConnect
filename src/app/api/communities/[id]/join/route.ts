@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
@@ -16,9 +17,10 @@ function internalError(err: unknown) {
 
 export async function POST(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    const params = await (context.params as any);
     if (!params?.id) return NextResponse.json({ error: "Id de comunidad faltante" }, { status: 400 });
 
     const { userId } = await auth();
@@ -39,6 +41,9 @@ export async function POST(
       data: { userId: user.id, communityId: params.id },
     });
 
+    // Incrementar XP por unirse a una comunidad
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 3 } } });
+
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("POST /api/communities/[id]/join error:", err);
@@ -48,9 +53,10 @@ export async function POST(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } | Promise<{ id: string }> }
 ) {
   try {
+    const params = await (context.params as any);
     if (!params?.id) return NextResponse.json({ error: "Id de comunidad faltante" }, { status: 400 });
 
     const { userId } = await auth();

@@ -3,6 +3,8 @@ import CommunityHeader from "./CommunityHeader";
 import CommunityPosts from "./CommunityPosts";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 
 interface PageProps {
   params: { id: string } | Promise<{ id: string }>;
@@ -21,7 +23,21 @@ export default async function CommunityPage({ params }: PageProps) {
     );
   }
 
-  const isMember = false;
+  let isMember = false;
+  try {
+    const { userId } = await auth();
+    if (userId) {
+      const user = await prisma.user.findUnique({ where: { clerkId: userId } });
+      if (user) {
+        const membership = await prisma.communityMember.findFirst({
+          where: { userId: user.id, communityId: id },
+        });
+        isMember = Boolean(membership);
+      }
+    }
+  } catch (err) {
+    console.error("Error checking membership:", err);
+  }
 
   return (
     <div className="min-h-screen bg-neutral-950 pt-16">

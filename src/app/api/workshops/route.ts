@@ -168,6 +168,9 @@ export async function POST(req: Request) {
       }
     });
 
+    // Incrementar XP por crear un taller
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 15 } } });
+
     return NextResponse.json(
       {
         success: true,

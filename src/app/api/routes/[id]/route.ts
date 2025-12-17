@@ -15,6 +15,7 @@ const RouteUpdateSchema = z.object({
   endPoint: z.string().optional(),
   mapUrl: z.union([z.string().url(), z.literal("")]).optional(),
   image: z.union([z.string().url(), z.literal("")]).optional(),
+  waypoints: z.array(z.object({ lat: z.number(), lng: z.number(), name: z.string().optional() })).optional(),
 });
 
 // GET /api/routes/[id] - Obtener una ruta específica

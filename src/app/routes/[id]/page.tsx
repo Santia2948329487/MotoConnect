@@ -1,7 +1,8 @@
 // src/app/routes/[id]/page.tsx
 import { fetchRouteById } from '@/services/routeService';
+import RouteMapWrapper from '@/components/RouteMapWrapper';
 import Link from 'next/link';
-import { MapPin, Calendar, TrendingUp, Star, Bookmark, Navigation, User, MessageCircle } from 'lucide-react';
+import { MapPin, Calendar, TrendingUp, Star, Bookmark, Navigation, MessageCircle } from 'lucide-react';
 import CommentForm from './CommentForm';
 import CommentsList from './CommentList';
 
@@ -106,13 +107,9 @@ export default async function RouteDetailPage({ params }: RoutePageProps) {
           
           {/* Map Section - 2/3 */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Map Placeholder */}
-            <div className="bg-neutral-900 border-2 border-neutral-800 rounded-xl overflow-hidden h-[500px] flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-neutral-700 mx-auto mb-4" />
-                <p className="text-neutral-500">Mapa de la Ruta</p>
-                <p className="text-xs text-neutral-600 mt-2">Integración con Leaflet próximamente</p>
-              </div>
+            {/* Map */}
+            <div>
+              <RouteMapWrapper waypoints={route.waypoints || []} />
             </div>
 
             {/* Description */}

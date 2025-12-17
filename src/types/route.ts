@@ -1,4 +1,11 @@
 // src/types/route.ts
+
+export interface Waypoint {
+  lat: number;
+  lng: number;
+  name?: string;
+}
+
 export interface RouteReview {
   id: string;
   rating: number;
@@ -20,5 +27,6 @@ export interface Route {
   views: number;
   createdAt: string;
   duration?: string;
-  reviews?: RouteReview[]; // ✅ Agregar reviews opcionales
+  reviews?: RouteReview[];
+  waypoints?: Waypoint[]; // ✅ Agregar waypoints opcionales
 }

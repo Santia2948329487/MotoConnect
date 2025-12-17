@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function JoinCommunityButton({
   communityId,
@@ -11,6 +12,7 @@ export default function JoinCommunityButton({
 }) {
   const [isMember, setIsMember] = useState(isMemberInitial);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   async function toggleMembership() {
   setLoading(true);
@@ -21,6 +23,7 @@ export default function JoinCommunityButton({
 
   if (res.ok) {
     setIsMember(!isMember);
+    try { router.refresh(); } catch (_) {}
   }
 
   setLoading(false);
