@@ -17,6 +17,7 @@ const RouteSchema = z.object({
   endPoint: z.string().optional(),
   mapUrl: z.union([z.string().url(), z.literal("")]).optional(),
   image: z.union([z.string().url(), z.literal("")]).optional(),
+  waypoints: z.array(z.object({ lat: z.number(), lng: z.number(), name: z.string().optional() })).optional(),
 });
 
 // GET /api/routes - Obtener todas las rutas
@@ -148,6 +149,7 @@ export async function POST(req: Request) {
         endPoint: validated.endPoint,
         mapUrl: validated.mapUrl,
         image: validated.image,
+        waypoints: validated.waypoints || undefined,
         creatorId: user.id
       },
       include: {
@@ -160,6 +162,9 @@ export async function POST(req: Request) {
         }
       }
     });
+
+    // Incrementar XP por crear una ruta
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 20 } } });
 
     return NextResponse.json(
       {

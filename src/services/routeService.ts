@@ -120,6 +120,7 @@ export async function fetchRouteById(id: string): Promise<Route | null> {
       views: 0,
       createdAt: route.createdAt,
       duration: calculateDuration(route.distanceKm),
+      waypoints: Array.isArray(route.waypoints) ? route.waypoints : [],
       // ✅ ASEGURAR QUE REVIEWS SEA SIEMPRE UN ARRAY
       reviews: Array.isArray(route.reviews) ? route.reviews : [],
     };
@@ -139,6 +140,7 @@ export async function createRoute(routeData: {
   startPoint?: string;
   endPoint?: string;
   mapUrl?: string;
+  waypoints?: Array<{ lat: number; lng: number; name?: string }>;
   image?: string;
 }): Promise<Route> {
   try {

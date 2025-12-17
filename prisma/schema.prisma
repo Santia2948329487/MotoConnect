@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -16,6 +17,7 @@ model User {
   clerkId   String   @unique
   name      String
   email     String   @unique
+  xp        Int      @default(0)
   role      Role     @default(USER)
   createdAt DateTime @default(now())
 
@@ -105,6 +107,7 @@ model Route {
   startPoint  String?
   endPoint    String?
   mapUrl      String? // enlace a Google Maps
+  waypoints   Json?
   image       String?
   createdAt   DateTime @default(now())
 

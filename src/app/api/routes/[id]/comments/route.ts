@@ -104,6 +104,9 @@ export async function POST(
       },
     });
 
+    // Incrementar XP por comentar
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 2 } } });
+
     return NextResponse.json(
       {
         success: true,

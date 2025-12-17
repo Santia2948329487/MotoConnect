@@ -82,6 +82,9 @@ export async function POST(
       include: { author: { select: { name: true } } },
     });
 
+    // Incrementar XP por crear un post
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 5 } } });
+
     const result = {
       id: post.id,
       title: post.title ?? null,

@@ -137,6 +137,9 @@ export async function POST(req: Request) {
       }
     });
 
+    // Incrementar XP por crear una comunidad
+    await prisma.user.update({ where: { id: user.id }, data: { xp: { increment: 10 } } });
+
     return NextResponse.json(
       {
         success: true,

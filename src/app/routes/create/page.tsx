@@ -74,6 +74,7 @@ export default function CreateRoutePage() {
         startPoint: formData.startPoint || undefined,
         endPoint: formData.endPoint || undefined,
         mapUrl: formData.mapUrl || undefined,
+        waypoints: waypoints.map(w => ({ lat: w.lat, lng: w.lng, name: w.name })),
         image: formData.image || undefined,
       });
 
