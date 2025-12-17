@@ -7,4 +7,5 @@ export interface Community {
   memberCount: number;
   topic: string; // Ej: Off-Road, Viajes Largos, Mantenimiento
   creatorName: string;
+  image: string;
 }

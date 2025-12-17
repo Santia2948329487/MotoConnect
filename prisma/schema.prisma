@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -40,8 +39,20 @@ model Community {
   creatorId   String
   createdAt   DateTime @default(now())
 
+  members CommunityMember[]
   creator User   @relation("UserCommunities", fields: [creatorId], references: [id])
   posts   Post[]
+}
+
+model CommunityMember {
+  id           String   @id @default(cuid())
+  userId       String
+  communityId  String
+  joinedAt     DateTime @default(now())
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, communityId]) // evita doble unión
 }
 
 model Post {
