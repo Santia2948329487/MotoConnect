@@ -7,68 +7,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  USER
-}
-
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  name      String
-  email     String   @unique
-  xp        Int      @default(0)
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-
-  communities Community[] @relation("UserCommunities")
-  posts       Post[]
-  comments    Comment[]
-  routes      Route[]
-  workshops   Workshop[]
-
+  id              String           @id @default(cuid())
+  clerkId         String           @unique
+  name            String
+  email           String           @unique
+  role            Role             @default(USER)
+  createdAt       DateTime         @default(now())
+  xp              Int              @default(0)
+  comments        Comment[]
+  communities     Community[]      @relation("UserCommunities")
+  posts           Post[]
+  routes          Route[]
+  routeComments   RouteComment[]
   routeReviews    RouteReview[]
-  routeComments   RouteComment[] // ✅ AGREGAR ESTA LÍNEA
+  workshops       Workshop[]
   workshopReviews WorkshopReview[]
-
 }
 
 model Community {
-  id          String   @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   description String?
   image       String?
   creatorId   String
-  createdAt   DateTime @default(now())
-
-  members CommunityMember[]
-  creator User   @relation("UserCommunities", fields: [creatorId], references: [id])
-  posts   Post[]
+  createdAt   DateTime          @default(now())
+  creator     User              @relation("UserCommunities", fields: [creatorId], references: [id])
+  members     CommunityMember[]
+  posts       Post[]
 }
 
 model CommunityMember {
-  id           String   @id @default(cuid())
-  userId       String
-  communityId  String
-  joinedAt     DateTime @default(now())
+  id          String    @id @default(cuid())
+  userId      String
+  communityId String
+  joinedAt    DateTime  @default(now())
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
-  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, communityId]) // evita doble unión
+  @@unique([userId, communityId])
 }
 
 model Post {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
   content     String?
   image       String?
   communityId String
   authorId    String
-  createdAt   DateTime @default(now())
-
-  community Community @relation(fields: [communityId], references: [id])
-  author    User      @relation(fields: [authorId], references: [id])
-  comments  Comment[]
+  createdAt   DateTime  @default(now())
+  comments    Comment[]
+  author      User      @relation(fields: [authorId], references: [id])
+  community   Community @relation(fields: [communityId], references: [id])
 }
 
 model Comment {
@@ -77,75 +66,65 @@ model Comment {
   postId    String
   authorId  String
   createdAt DateTime @default(now())
-
-  post   Post @relation(fields: [postId], references: [id])
-  author User @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
 }
 
-// ✅ AGREGAR ESTE NUEVO MODELO
 model RouteComment {
   id        String   @id @default(cuid())
   content   String
   routeId   String
   authorId  String
   createdAt DateTime @default(now())
-
-  route  Route @relation(fields: [routeId], references: [id], onDelete: Cascade)
-  author User  @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+  route     Route    @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@index([routeId])
   @@index([authorId])
 }
 
-
 model Route {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   name        String
   description String?
   distanceKm  Float?
-  difficulty  String? // fácil, media, difícil
+  difficulty  String?
   startPoint  String?
   endPoint    String?
-  mapUrl      String? // enlace a Google Maps
-  waypoints   Json?
+  mapUrl      String?
   image       String?
-  createdAt   DateTime @default(now())
-
-  creatorId String
-  creator   User   @relation(fields: [creatorId], references: [id])
-
-  reviews RouteReview[]
-  remarks RouteComment[]
+  createdAt   DateTime       @default(now())
+  creatorId   String
+  creator     User           @relation(fields: [creatorId], references: [id])
+  remarks     RouteComment[]
+  reviews     RouteReview[]
 }
 
 model Workshop {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String?
   address     String?
   phone       String?
-  services    String? // ej: "mecánica general, pintura, eléctricos"
+  services    String?
   image       String?
   latitude    Float?
   longitude   Float?
-  createdAt   DateTime @default(now())
-
-  creatorId String
-  creator   User   @relation(fields: [creatorId], references: [id])
-
-  reviews WorkshopReview[]
+  createdAt   DateTime         @default(now())
+  creatorId   String
+  creator     User             @relation(fields: [creatorId], references: [id])
+  reviews     WorkshopReview[]
 }
 
 model RouteReview {
   id        String   @id @default(cuid())
-  rating    Int // 1-5
+  rating    Int
   comment   String?
   routeId   String
   userId    String
   createdAt DateTime @default(now())
-
-  route Route @relation(fields: [routeId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  route     Route    @relation(fields: [routeId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model WorkshopReview {
@@ -155,7 +134,11 @@ model WorkshopReview {
   workshopId String
   userId     String
   createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  workshop   Workshop @relation(fields: [workshopId], references: [id])
+}
 
-  workshop Workshop @relation(fields: [workshopId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+enum Role {
+  ADMIN
+  USER
 }

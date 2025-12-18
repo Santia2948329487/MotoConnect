@@ -1,0 +1,98 @@
+/* src/app/docs/swagger-custom.css */
+
+/* Personalizar colores de Swagger UI para que coincida con el tema de MotoConnect */
+
+.swagger-ui .topbar {
+  display: none; /* Ocultar la barra superior por defecto de Swagger */
+}
+
+.swagger-ui .info .title {
+  color: #8b5cf6 !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+}
+
+.swagger-ui .info .description {
+  color: #64748b !important;
+}
+
+.swagger-ui .scheme-container {
+  background: #f1f5f9 !important;
+  border-radius: 8px !important;
+}
+
+.swagger-ui .opblock-tag {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  color: #1e293b !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  padding: 1rem 0 !important;
+}
+
+.swagger-ui .opblock {
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  margin-bottom: 1rem !important;
+}
+
+.swagger-ui .opblock.opblock-get {
+  border-color: #3b82f6 !important;
+  background: #eff6ff !important;
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: #10b981 !important;
+  background: #ecfdf5 !important;
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-color: #ef4444 !important;
+  background: #fef2f2 !important;
+}
+
+.swagger-ui .btn.execute {
+  background-color: #8b5cf6 !important;
+  border-color: #7c3aed !important;
+}
+
+.swagger-ui .btn.execute:hover {
+  background-color: #7c3aed !important;
+}
+
+.swagger-ui .response-col_status {
+  font-weight: 600 !important;
+}
+
+.swagger-ui .parameter__name {
+  color: #8b5cf6 !important;
+  font-weight: 600 !important;
+}
+
+.swagger-ui .response-col_description {
+  color: #475569 !important;
+}
+
+/* Scrollbar personalizado */
+.swagger-ui ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.swagger-ui ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb {
+  background: #8b5cf6;
+  border-radius: 4px;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb:hover {
+  background: #7c3aed;
+}
