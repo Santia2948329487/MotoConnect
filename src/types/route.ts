@@ -28,5 +28,11 @@ export interface Route {
   createdAt: string;
   duration?: string;
   reviews?: RouteReview[];
-  waypoints?: Waypoint[]; // ✅ Agregar waypoints opcionales
+  waypoints?: Waypoint[];
+  creator?: {
+    id: string;
+    clerkId: string;
+    name: string;
+    email: string;
+  };
 }

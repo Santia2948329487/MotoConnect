@@ -30,7 +30,32 @@ interface InteractiveRouteMapProps {
   onRouteChange: (waypoints: Waypoint[], distance: number) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
+  initialWaypoints?: Waypoint[];
 }
+
+// ✅ Función auxiliar para calcular distancia (FUERA del componente)
+const calculateDistance = (points: Waypoint[]): number => {
+  if (points.length < 2) return 0;
+
+  let totalDistance = 0;
+  for (let i = 0; i < points.length - 1; i++) {
+    const R = 6371; // Radio de la Tierra en km
+    const lat1 = points[i].lat * Math.PI / 180;
+    const lat2 = points[i + 1].lat * Math.PI / 180;
+    const dLat = (points[i + 1].lat - points[i].lat) * Math.PI / 180;
+    const dLng = (points[i + 1].lng - points[i].lng) * Math.PI / 180;
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    totalDistance += R * c;
+  }
+
+  return Math.round(totalDistance * 10) / 10;
+};
 
 // Componente para manejar clicks en el mapa
 function MapClickHandler({ onAddWaypoint }: { onAddWaypoint: (lat: number, lng: number) => void }) {
@@ -44,36 +69,47 @@ function MapClickHandler({ onAddWaypoint }: { onAddWaypoint: (lat: number, lng: 
 
 export default function InteractiveRouteMap({
   onRouteChange,
-  initialCenter = [6.2442, -75.5812], // Medellín por defecto
-  initialZoom = 12
+  initialCenter = [6.2442, -75.5812],
+  initialZoom = 12,
+  initialWaypoints = []
 }: InteractiveRouteMapProps) {
-  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
-  const [distance, setDistance] = useState<number>(0);
-  const mapRef = useRef<any>(null);
-
-  // Calcular distancia usando fórmula de Haversine
-  const calculateDistance = (points: Waypoint[]): number => {
-    if (points.length < 2) return 0;
-
-    let totalDistance = 0;
-    for (let i = 0; i < points.length - 1; i++) {
-      const R = 6371; // Radio de la Tierra en km
-      const lat1 = points[i].lat * Math.PI / 180;
-      const lat2 = points[i + 1].lat * Math.PI / 180;
-      const dLat = (points[i + 1].lat - points[i].lat) * Math.PI / 180;
-      const dLng = (points[i + 1].lng - points[i].lng) * Math.PI / 180;
-
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1) * Math.cos(lat2) *
-        Math.sin(dLng / 2) * Math.sin(dLng / 2);
-
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      totalDistance += R * c;
+  // ✅ Inicializar estado directamente con los waypoints iniciales
+  const [waypoints, setWaypoints] = useState<Waypoint[]>(() => {
+    if (initialWaypoints && initialWaypoints.length > 0) {
+      return initialWaypoints.map((wp, index) => ({
+        id: wp.id || `wp-initial-${index}`,
+        lat: wp.lat,
+        lng: wp.lng,
+        name: wp.name || `Punto ${index + 1}`
+      }));
     }
+    return [];
+  });
 
-    return Math.round(totalDistance * 10) / 10; // Redondear a 1 decimal
-  };
+  const [distance, setDistance] = useState<number>(() => {
+    if (initialWaypoints && initialWaypoints.length > 0) {
+      const waypointsWithIds = initialWaypoints.map((wp, index) => ({
+        id: wp.id || `wp-initial-${index}`,
+        lat: wp.lat,
+        lng: wp.lng,
+        name: wp.name || `Punto ${index + 1}`
+      }));
+      return calculateDistance(waypointsWithIds);
+    }
+    return 0;
+  });
+
+  const mapRef = useRef<any>(null);
+  const hasNotifiedRef = useRef(false);
+
+  // ✅ Notificar al padre solo una vez cuando hay waypoints iniciales
+  useEffect(() => {
+    if (!hasNotifiedRef.current && waypoints.length > 0) {
+      console.log('🗺️ Notificando waypoints iniciales al padre:', waypoints);
+      onRouteChange(waypoints, distance);
+      hasNotifiedRef.current = true;
+    }
+  }, []);
 
   // Agregar waypoint
   const handleAddWaypoint = (lat: number, lng: number) => {
@@ -114,7 +150,6 @@ export default function InteractiveRouteMap({
 
   return (
     <div className="relative w-full h-full">
-      {/* Mapa */}
       <MapContainer
         center={initialCenter}
         zoom={initialZoom}
@@ -127,11 +162,9 @@ export default function InteractiveRouteMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {/* Manejador de clicks */}
         <MapClickHandler onAddWaypoint={handleAddWaypoint} />
 
-        {/* Marcadores */}
-        {waypoints.map((waypoint, index) => (
+        {waypoints.map((waypoint) => (
           <Marker key={waypoint.id} position={[waypoint.lat, waypoint.lng]}>
             <Popup>
               <div className="text-center">
@@ -150,7 +183,6 @@ export default function InteractiveRouteMap({
           </Marker>
         ))}
 
-        {/* Polyline (línea de la ruta) */}
         {waypoints.length > 1 && (
           <Polyline
             positions={polylinePositions}
@@ -161,7 +193,6 @@ export default function InteractiveRouteMap({
         )}
       </MapContainer>
 
-      {/* Panel de control flotante */}
       <div className="absolute top-4 right-4 bg-gray-800/95 backdrop-blur-sm p-4 rounded-lg shadow-xl z-[1000] min-w-[200px]">
         <h3 className="text-white font-bold mb-2 text-sm">Control de Ruta</h3>
         
@@ -193,7 +224,6 @@ export default function InteractiveRouteMap({
         </div>
       </div>
 
-      {/* Lista de waypoints (opcional, en la parte inferior) */}
       {waypoints.length > 0 && (
         <div className="absolute bottom-4 left-4 bg-gray-800/95 backdrop-blur-sm p-3 rounded-lg shadow-xl z-[1000] max-w-[250px]">
           <h4 className="text-white font-bold mb-2 text-xs">Puntos de Ruta</h4>

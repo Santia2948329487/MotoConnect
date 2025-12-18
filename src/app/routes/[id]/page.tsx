@@ -1,8 +1,9 @@
 // src/app/routes/[id]/page.tsx
 import { fetchRouteById } from '@/services/routeService';
+import { auth } from "@clerk/nextjs/server";
 import RouteMapWrapper from '@/components/RouteMapWrapper';
 import Link from 'next/link';
-import { MapPin, Calendar, TrendingUp, Star, Bookmark, Navigation, MessageCircle } from 'lucide-react';
+import { MapPin, Calendar, TrendingUp, Star, Bookmark, Navigation, MessageCircle, Edit } from 'lucide-react';
 import CommentForm from './CommentForm';
 import CommentsList from './CommentList';
 
@@ -13,6 +14,10 @@ interface RoutePageProps {
 export default async function RouteDetailPage({ params }: RoutePageProps) {
   const { id } = await params;
   const route = await fetchRouteById(id);
+
+  // Verificar autenticación y propiedad
+  const { userId } = await auth();
+  const isOwner = userId && route?.creator?.clerkId === userId;
 
   // Cargar comentarios
   const commentsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/routes/${id}/comments`, {
@@ -229,6 +234,16 @@ export default async function RouteDetailPage({ params }: RoutePageProps) {
             <div className="bg-neutral-900 border-2 border-neutral-800 rounded-xl p-6">
               <h3 className="text-xl font-bold text-white mb-4">Acciones</h3>
               <div className="space-y-3">
+                {/* Botón de Editar - solo visible para el creador */}
+                {isOwner && (
+                  <Link href={`/routes/${id}/edit`}>
+                    <button className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                      <Edit className="w-4 h-4" />
+                      Editar Ruta
+                    </button>
+                  </Link>
+                )}
+                
                 <button className="w-full flex items-center justify-center gap-2 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors">
                   <Bookmark className="w-4 h-4" />
                   Guardar Ruta

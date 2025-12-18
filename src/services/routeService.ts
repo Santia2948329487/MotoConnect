@@ -121,8 +121,13 @@ export async function fetchRouteById(id: string): Promise<Route | null> {
       createdAt: route.createdAt,
       duration: calculateDuration(route.distanceKm),
       waypoints: Array.isArray(route.waypoints) ? route.waypoints : [],
-      // ✅ ASEGURAR QUE REVIEWS SEA SIEMPRE UN ARRAY
       reviews: Array.isArray(route.reviews) ? route.reviews : [],
+      creator: route.creator ? {
+        id: route.creator.id,
+        clerkId: route.creator.clerkId,
+        name: route.creator.name,
+        email: route.creator.email,
+      } : undefined,
     };
     
   } catch (error) {
@@ -190,8 +195,10 @@ export async function updateRoute(
     endPoint: string;
     mapUrl: string;
     image: string;
+    waypoints: Array<{ lat: number; lng: number; name?: string }>; 
   }>
 ): Promise<Route> {
+
   try {
     const response = await fetch(`${API_BASE}/routes/${id}`, {
       method: 'PUT',
